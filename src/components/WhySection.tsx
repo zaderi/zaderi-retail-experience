@@ -1,47 +1,47 @@
 import { motion } from "framer-motion";
 
 const reasons = [
-  { num: "01", title: "Ease of Use", desc: "Designed for real people, not engineers. Our systems are so intuitive your team can start using them with minimal training." },
-  { num: "02", title: "Local Expertise", desc: "We understand the East African retail environment — local currency, mobile money, and market-specific needs are built right in." },
-  { num: "03", title: "Always-On Support", desc: "Our support team is available 24/7. Via WhatsApp, phone, or in person — we don't leave you stranded when you need help." },
+  { num: "01", title: "Rapid Deployment", desc: "We specialize in 'vibe coding' — fast, intuitive full-stack development that gets your solutions live in days, not months." },
+  { num: "02", title: "Local Expertise", desc: "We understand the East African market — local currency, mobile money, and region-specific needs are built right into every solution." },
+  { num: "03", title: "Always-On Support", desc: "24/7 support via WhatsApp, phone, or in person. We don't leave you stranded when you need help the most." },
   { num: "04", title: "Offline Capability", desc: "Power cuts and internet downtime won't stop your business. Our systems keep running offline and sync when you're back online." },
-  { num: "05", title: "Scalable & Flexible", desc: "Start with one terminal and grow to a full multi-branch chain. Zaderi scales with your ambition, not against it." },
-  { num: "06", title: "Affordable Pricing", desc: "Enterprise-grade features don't have to cost a fortune. Our pricing is transparent, fair, and designed for growing businesses." },
+  { num: "05", title: "AI-First Approach", desc: "We integrate AI at every layer — from intelligent chatbots and lead-gen bots to predictive analytics that help you sell smarter." },
+  { num: "06", title: "Affordable & Scalable", desc: "Enterprise-grade features without enterprise pricing. Start small and scale as you grow — our tools grow with you." },
 ];
 
 const WhySection = () => {
   return (
-    <section className="relative z-10 bg-background overflow-hidden">
-      <div className="max-w-[1200px] mx-auto py-24 px-[5%]">
+    <section className="relative z-10 bg-background">
+      <div className="section-container section-padding">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="text-center"
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-[600px] mx-auto mb-14"
         >
-          <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-4">Why Choose Us</span>
-          <h2 className="font-display font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            Built for Businesses Like Yours
+          <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-3">Why Choose Us</span>
+          <h2 className="font-display font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>
+            Built Different. Built Better.
           </h2>
-          <p className="text-soft text-base font-light max-w-[540px] mx-auto leading-relaxed">
-            We're not just software vendors — we're your technology partner for growth.
+          <p className="text-soft text-[0.95rem] font-normal leading-relaxed">
+            We combine rapid "vibe coding" deployment with deep technical expertise to deliver full-stack solutions at speed.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-14">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {reasons.map((r, i) => (
             <motion.div
               key={r.num}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: i * 0.08 }}
-              className="glass-card-solid text-center p-10 rounded-2xl hover:-translate-y-1 hover:shadow-[0_20px_60px_rgba(0,0,0,0.3)] hover:border-electric/25 transition-all"
+              transition={{ duration: 0.5, delay: i * 0.06 }}
+              className="glass-card-solid rounded-xl p-8 hover:-translate-y-1 hover:border-electric/20 transition-all"
             >
-              <div className="font-display text-5xl font-extrabold gradient-text leading-none mb-4">{r.num}</div>
-              <h4 className="font-display text-base font-bold text-foreground mb-3">{r.title}</h4>
-              <p className="text-soft text-sm font-light leading-relaxed">{r.desc}</p>
+              <div className="font-display text-4xl font-extrabold gradient-text leading-none mb-4">{r.num}</div>
+              <h4 className="font-display text-base font-bold text-foreground mb-2">{r.title}</h4>
+              <p className="text-soft text-sm font-normal leading-relaxed">{r.desc}</p>
             </motion.div>
           ))}
         </div>

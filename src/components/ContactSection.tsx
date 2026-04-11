@@ -12,44 +12,43 @@ const ContactSection = () => {
 
   return (
     <section id="contact" className="relative z-10 bg-background">
-      <div className="max-w-[1200px] mx-auto py-24 px-[5%]">
+      <div className="section-container section-padding">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6 }}
         >
-          <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-4">Get In Touch</span>
-          <h2 className="font-display font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            Let's Talk About<br />Your Business
+          <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-3">Get In Touch</span>
+          <h2 className="font-display font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>
+            Let's Talk About Your Business
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-16 mt-12 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.4fr] gap-12 mt-10 items-start">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.6 }}
           >
-            <h3 className="font-display text-2xl font-bold mb-4 text-foreground">We're Here to Help</h3>
-            <p className="text-soft text-[0.92rem] font-light leading-relaxed mb-8">
-              Whether you have questions, need support, or want to get started — our team is always ready to assist.
+            <p className="text-soft text-[0.92rem] font-normal leading-relaxed mb-8">
+              Whether you need a POS system, AI chatbot, or full business automation — our team is ready to help.
             </p>
 
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {[
                 { icon: "✉️", label: "Email", value: "sales@zaderitechnologies.com", href: "mailto:sales@zaderitechnologies.com" },
                 { icon: "📞", label: "Phone", value: "+256 771 919 582", href: "tel:+256771919582" },
                 { icon: "📍", label: "Location", value: "Kampala, Uganda" },
-                { icon: "⏰", label: "Business Hours", value: "Mon–Sat: 8:00 AM – 6:00 PM" },
+                { icon: "⏰", label: "Hours", value: "Mon–Sat: 8:00 AM – 6:00 PM" },
               ].map((item) => (
                 <a
                   key={item.label}
                   href={item.href || "#"}
-                  className="flex items-center gap-3.5 p-4 glass-card-solid rounded-xl no-underline text-inherit hover:border-electric/30 hover:translate-x-1 transition-all"
+                  className="flex items-center gap-3 p-4 glass-card-solid rounded-lg no-underline text-inherit hover:border-electric/20 transition-all"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-electric/10 grid place-items-center text-lg flex-shrink-0">
+                  <div className="w-9 h-9 rounded-lg bg-cobalt/15 grid place-items-center text-base flex-shrink-0">
                     {item.icon}
                   </div>
                   <div>
@@ -64,52 +63,47 @@ const ContactSection = () => {
               href="https://wa.me/256771919582"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-6 flex items-center justify-center gap-2.5 w-full py-3.5 rounded-xl no-underline text-foreground font-semibold transition-all hover:-translate-y-0.5"
-              style={{ background: "linear-gradient(135deg, #25D366, #128C7E)", boxShadow: "0 8px 24px rgba(37,211,102,0.3)" }}
+              className="mt-5 flex items-center justify-center gap-2 w-full py-3 rounded-lg no-underline text-foreground font-semibold text-sm transition-all hover:opacity-90"
+              style={{ background: "linear-gradient(135deg, #25D366, #128C7E)" }}
             >
-              💬 Chat with Us on WhatsApp
+              💬 Chat on WhatsApp
             </a>
           </motion.div>
 
           <motion.form
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7, delay: 0.15 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
             onSubmit={handleSubmit}
-            className="glass-card-solid rounded-2xl p-10"
+            className="glass-card-solid rounded-xl p-8"
           >
-            <h3 className="font-display text-xl font-bold mb-6 text-foreground">Send Us a Message</h3>
+            <h3 className="font-display text-lg font-bold mb-6 text-foreground">Send Us a Message</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Name</label>
-                <input type="text" placeholder="Your name" className="bg-background/60 border border-foreground/[0.08] rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric focus:ring-2 focus:ring-electric/15 transition-all" />
+                <input type="text" placeholder="Your name" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email</label>
-                <input type="email" placeholder="your@email.com" className="bg-background/60 border border-foreground/[0.08] rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric focus:ring-2 focus:ring-electric/15 transition-all" />
+                <input type="email" placeholder="your@email.com" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
               </div>
             </div>
 
-            <div className="flex flex-col gap-2 mb-4">
-              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Phone</label>
-              <input type="tel" placeholder="+256 ..." className="bg-background/60 border border-foreground/[0.08] rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric focus:ring-2 focus:ring-electric/15 transition-all" />
-            </div>
-
-            <div className="flex flex-col gap-2 mb-4">
+            <div className="flex flex-col gap-1.5 mb-4">
               <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Subject</label>
-              <input type="text" placeholder="How can we help?" className="bg-background/60 border border-foreground/[0.08] rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric focus:ring-2 focus:ring-electric/15 transition-all" />
+              <input type="text" placeholder="How can we help?" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
             </div>
 
-            <div className="flex flex-col gap-2 mb-6">
+            <div className="flex flex-col gap-1.5 mb-6">
               <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Message</label>
-              <textarea placeholder="Tell us more about your inquiry..." rows={4} className="bg-background/60 border border-foreground/[0.08] rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric focus:ring-2 focus:ring-electric/15 transition-all resize-y" />
+              <textarea placeholder="Tell us more..." rows={4} className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all resize-y" />
             </div>
 
             <button
               type="submit"
-              className="w-full gradient-primary text-foreground py-3.5 rounded-full font-semibold text-base shadow-glow hover:-translate-y-0.5 transition-all"
+              className="w-full gradient-primary text-foreground py-3.5 rounded-lg font-semibold text-[0.9rem] shadow-glow transition-all"
             >
               {submitted ? "✓ Message Sent!" : "Send Message →"}
             </button>

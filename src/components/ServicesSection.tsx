@@ -1,76 +1,87 @@
 import { motion } from "framer-motion";
-import { Monitor, Store, Package, BarChart3 } from "lucide-react";
+import { Monitor, Store, Package, BarChart3, ShieldCheck, Smartphone } from "lucide-react";
 
 const services = [
   {
     icon: Monitor,
-    title: "Point of Sale Systems",
-    desc: "Lightning-fast, intuitive POS software that processes transactions, manages receipts, and handles multiple payment methods seamlessly.",
-    features: ["Touch-screen optimized interface", "Multiple payment types (cash, mobile money, card)", "Receipt printing & digital receipts", "Offline mode capability", "Staff access management"],
+    title: "Point of Sale",
+    desc: "Lightning-fast, touch-friendly POS that handles transactions, receipts, and multiple payment methods — including mobile money.",
+    features: ["Touch-screen interface", "Cash, Mobile Money & Card", "Receipt printing", "Offline mode"],
   },
   {
     icon: Store,
-    title: "Retail Management System",
-    desc: "A complete back-office system that gives you full control over your retail operation — from purchasing to customer management.",
-    features: ["Multi-branch management", "Supplier & purchase orders", "Customer loyalty programs", "User roles & permissions", "Pricing & promotions engine"],
+    title: "Retail Management",
+    desc: "Complete back-office system for managing your entire retail operation — purchasing, suppliers, customers, and more.",
+    features: ["Multi-branch support", "Supplier management", "Customer loyalty", "Pricing engine"],
   },
   {
     icon: Package,
-    title: "Inventory Management",
-    desc: "Never run out of stock or overstock again. Real-time tracking keeps your shelves stocked and your business running smoothly.",
-    features: ["Real-time stock tracking", "Low stock alerts & reorder points", "Barcode & QR code scanning", "Stock transfer between branches", "Expiry date tracking"],
+    title: "Inventory Control",
+    desc: "Real-time stock tracking with automated alerts, barcode scanning, and batch management to prevent stockouts.",
+    features: ["Real-time tracking", "Low stock alerts", "Barcode scanning", "Expiry tracking"],
   },
   {
     icon: BarChart3,
-    title: "Reporting & Analytics",
-    desc: "Turn your sales data into business intelligence. Make decisions based on facts, not guesses, with our powerful analytics suite.",
-    features: ["Daily, weekly, monthly reports", "Top-selling products insights", "Staff performance tracking", "Profit & loss summaries", "Export to PDF or Excel"],
+    title: "Sales Analytics",
+    desc: "Powerful reporting that turns raw sales data into actionable business intelligence for smarter decision-making.",
+    features: ["Custom reports", "Product insights", "Staff performance", "Export to PDF/Excel"],
+  },
+  {
+    icon: Smartphone,
+    title: "Mobile Access",
+    desc: "Monitor your business from anywhere. Our cloud-based platform gives you full access from any device, any time.",
+    features: ["Mobile dashboard", "Real-time sync", "Push notifications", "Remote management"],
+  },
+  {
+    icon: ShieldCheck,
+    title: "Security & Compliance",
+    desc: "Enterprise-grade security with role-based access, audit trails, and data encryption to protect your business.",
+    features: ["Role-based access", "Audit trails", "Data encryption", "Secure backups"],
   },
 ];
 
 const ServicesSection = () => {
   return (
-    <section id="services" className="relative z-10 bg-navy/30">
-      <div className="max-w-[1200px] mx-auto py-24 px-[5%]">
+    <section id="services" className="relative z-10 bg-secondary/30">
+      <div className="section-container section-padding">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-[600px] mx-auto mb-14"
         >
-          <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-4">What We Offer</span>
-          <h2 className="font-display font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(2rem, 4vw, 3rem)" }}>
-            Everything Your<br />Retail Business Needs
+          <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-3">Retail Solutions</span>
+          <h2 className="font-display font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>
+            Everything Your Retail Business Needs
           </h2>
-          <p className="text-soft text-base font-light max-w-[540px] leading-relaxed">
-            From the moment a customer walks in to the moment the books are closed, Zaderi has you covered end to end.
+          <p className="text-soft text-[0.95rem] font-normal leading-relaxed">
+            Built specifically for the modern Ugandan retail market — from small shops to multi-branch chains.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-14">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {services.map((s, i) => (
             <motion.div
               key={s.title}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: i * 0.1 }}
-              className="glass-card-solid rounded-2xl p-8 group hover:-translate-y-1.5 hover:border-electric/30 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)] transition-all relative overflow-hidden"
+              transition={{ duration: 0.5, delay: i * 0.06 }}
+              className="glass-card-solid rounded-xl p-7 group hover:-translate-y-1 hover:border-electric/20 transition-all"
             >
-              <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-electric to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="w-[52px] h-[52px] rounded-[14px] bg-gradient-to-br from-cobalt/30 to-cyan/15 border border-electric/20 grid place-items-center mb-5">
-                <s.icon className="w-6 h-6 text-electric" />
+              <div className="w-11 h-11 rounded-lg bg-cobalt/15 border border-cobalt/20 grid place-items-center mb-5">
+                <s.icon className="w-5 h-5 text-electric" />
               </div>
-              <h3 className="font-display text-lg font-bold text-foreground mb-3">{s.title}</h3>
-              <p className="text-soft text-sm font-light leading-relaxed mb-5">{s.desc}</p>
-              <ul className="flex flex-col gap-1.5">
+              <h3 className="font-display text-base font-bold text-foreground mb-2">{s.title}</h3>
+              <p className="text-soft text-sm font-normal leading-relaxed mb-4">{s.desc}</p>
+              <div className="flex flex-wrap gap-1.5">
                 {s.features.map((f) => (
-                  <li key={f} className="text-soft text-xs flex items-center gap-2">
-                    <span className="text-cyan font-bold text-[0.75rem]">✓</span>
+                  <span key={f} className="text-[0.7rem] text-muted-foreground bg-foreground/[0.04] px-2.5 py-1 rounded-md">
                     {f}
-                  </li>
+                  </span>
                 ))}
-              </ul>
+              </div>
             </motion.div>
           ))}
         </div>

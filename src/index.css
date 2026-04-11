@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,57 +6,57 @@
 
 @layer base {
   :root {
-    --background: 220 60% 4%;
-    --foreground: 220 30% 97%;
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
 
-    --card: 220 55% 8%;
-    --card-foreground: 220 30% 97%;
+    --card: 222 44% 10%;
+    --card-foreground: 210 40% 98%;
 
-    --popover: 220 55% 8%;
-    --popover-foreground: 220 30% 97%;
+    --popover: 222 44% 10%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 217 90% 42%;
-    --primary-foreground: 220 30% 97%;
+    --primary: 213 94% 52%;
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 50% 12%;
-    --secondary-foreground: 220 30% 97%;
+    --secondary: 222 40% 14%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 220 30% 15%;
-    --muted-foreground: 215 30% 55%;
+    --muted: 222 30% 18%;
+    --muted-foreground: 215 20% 55%;
 
-    --accent: 195 100% 50%;
-    --accent-foreground: 220 60% 4%;
+    --accent: 170 80% 50%;
+    --accent-foreground: 222 47% 6%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 20% 14%;
-    --input: 220 20% 14%;
-    --ring: 217 90% 42%;
+    --border: 222 20% 16%;
+    --input: 222 20% 16%;
+    --ring: 213 94% 52%;
 
     --radius: 0.75rem;
 
     /* Custom tokens */
-    --midnight: 220 60% 4%;
-    --navy: 220 55% 11%;
-    --cobalt: 217 90% 42%;
-    --electric: 215 100% 55%;
-    --cyan: 195 100% 50%;
-    --soft: 215 35% 73%;
+    --midnight: 222 47% 6%;
+    --navy: 222 44% 11%;
+    --cobalt: 213 94% 52%;
+    --electric: 213 100% 60%;
+    --cyan: 170 80% 50%;
+    --soft: 215 25% 68%;
     --glass: 0 0% 100% / 0.04;
     --glass-border: 0 0% 100% / 0.08;
 
-    --font-display: 'Poppins', sans-serif;
+    --font-display: 'Plus Jakarta Sans', sans-serif;
     --font-body: 'Inter', sans-serif;
 
-    --sidebar-background: 220 55% 8%;
-    --sidebar-foreground: 220 30% 97%;
-    --sidebar-primary: 217 90% 42%;
-    --sidebar-primary-foreground: 220 30% 97%;
-    --sidebar-accent: 220 50% 12%;
-    --sidebar-accent-foreground: 220 30% 97%;
-    --sidebar-border: 220 20% 14%;
-    --sidebar-ring: 217 90% 42%;
+    --sidebar-background: 222 44% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 213 94% 52%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 222 40% 14%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 222 20% 16%;
+    --sidebar-ring: 213 94% 52%;
   }
 }
 
@@ -69,10 +69,13 @@
     @apply bg-background text-foreground;
     font-family: var(--font-body);
     overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
+    letter-spacing: -0.02em;
   }
 
   ::-webkit-scrollbar {
@@ -103,7 +106,6 @@
   .glass-card-solid {
     background: hsl(var(--card));
     border: 1px solid hsl(var(--glass-border));
-    backdrop-filter: blur(20px);
   }
 
   .gradient-primary {
@@ -115,19 +117,14 @@
   }
 
   .shadow-glow {
-    box-shadow: 0 8px 32px hsla(var(--cobalt), 0.4);
+    box-shadow: 0 8px 32px hsla(var(--cobalt), 0.35);
   }
 
-  .noise-overlay {
-    position: relative;
+  .section-padding {
+    @apply py-20 lg:py-28 px-[5%];
   }
-  .noise-overlay::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
+
+  .section-container {
+    @apply max-w-[1200px] mx-auto;
   }
 }

@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { FormEvent, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 const DemoSection = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -13,44 +14,40 @@ const DemoSection = () => {
     e.preventDefault();
 
     try {
-      // Send to backend API
-      const response = await fetch('/api/forms', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          type: 'demo',   // Tells backend to use the demo_requests table
-          name: fullName, // Maps frontend fullName to backend "name"
-          phone,
-          email,
-          interest,
-          message
-        })
-      });
+      const { error } = await supabase
+        .from('demo_requests')
+        .insert([
+          {
+            full_name: fullName,
+            phone,
+            email,
+            interest,
+            message
+          }
+        ]);
 
-      if (response.ok) {
-        // Fallback: Open email client
-        const subject = encodeURIComponent(`Demo request from ${fullName || "website visitor"}`);
-        const body = encodeURIComponent(
-          `Name: ${fullName}\nPhone: ${phone}\nEmail: ${email}\nInterest: ${interest}\n\nMessage:\n${message}`
-        );
-        window.location.href = `mailto:sales@zaderitechnologies.com?subject=${subject}&body=${body}`;
-
-        setSubmitted(true);
-        // Reset form fields
-        setFullName("");
-        setPhone("");
-        setEmail("");
-        setInterest("");
-        setMessage("");
-        
-        setTimeout(() => setSubmitted(false), 5000);
-      } else {
-        const errorData = await response.json();
-        console.error('Server error:', errorData);
-        alert('Failed to submit form. Please check your connection or try again.');
+      if (error) {
+        console.error('Error inserting demo request:', error);
+        alert('Failed to submit form. Please try again.');
+        return;
       }
+
+      // Fallback: Open email client
+      const subject = encodeURIComponent(`Demo request from ${fullName || "website visitor"}`);
+      const body = encodeURIComponent(
+        `Name: ${fullName}\nPhone: ${phone}\nEmail: ${email}\nInterest: ${interest}\n\nMessage:\n${message}`
+      );
+      window.location.href = `mailto:sales@zaderitechnologies.com?subject=${subject}&body=${body}`;
+
+      setSubmitted(true);
+      // Clear form fields
+      setFullName("");
+      setPhone("");
+      setEmail("");
+      setInterest("");
+      setMessage("");
+
+      setTimeout(() => setSubmitted(false), 5000);
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('Network error. Please try again.');

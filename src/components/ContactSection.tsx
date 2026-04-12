@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { FormEvent, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 const ContactSection = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -8,42 +9,46 @@ const ContactSection = () => {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // Send to backend API
-    fetch('/api/forms', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        type: 'contact',
-        name,
-        email,
-        subject,
-        message
-      })
-    })
-    .then(response => {
-      if (response.ok) {
-        // Also open email client as fallback
-        const encodedSubject = encodeURIComponent(`Contact form: ${subject || "Website inquiry"}`);
-        const body = encodeURIComponent(
-          `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`
-        );
-        window.location.href = `mailto:sales@zaderitechnologies.com?subject=${encodedSubject}&body=${body}`;
+    try {
+      const { error } = await supabase
+        .from('contacts')
+        .insert([
+          {
+            name,
+            email,
+            subject,
+            message
+          }
+        ]);
 
-        setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 3000);
-      } else {
+      if (error) {
+        console.error('Error inserting contact:', error);
         alert('Failed to submit form. Please try again.');
+        return;
       }
-    })
-    .catch(error => {
+
+      // Also open email client as fallback
+      const encodedSubject = encodeURIComponent(`Contact form: ${subject || "Website inquiry"}`);
+      const body = encodeURIComponent(
+        `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`
+      );
+      window.location.href = `mailto:sales@zaderitechnologies.com?subject=${encodedSubject}&body=${body}`;
+
+      setSubmitted(true);
+      // Clear form fields
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+
+      setTimeout(() => setSubmitted(false), 3000);
+    } catch (error) {
       console.error('Error submitting form:', error);
       alert('Network error. Please try again.');
-    });
+    }
   };
 
   return (

@@ -101,7 +101,7 @@ const ProductsSection = () => {
                   <span className="w-7 h-7 rounded-md bg-cyan/10 border border-cyan/15 grid place-items-center text-xs flex-shrink-0">
                     {f.slice(0, 2)}
                   </span>
-                  <span className="text-[0.82rem]">{f.slice(3)}</span>
+                  <span className="text-[0.82rem]">{f.replace(/^[^\s]+\s*/, "")}</span>
                 </div>
               ))}
             </div>

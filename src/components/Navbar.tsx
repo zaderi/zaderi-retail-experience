@@ -31,12 +31,12 @@ const Navbar = () => {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[5%] h-[72px] transition-all duration-300 ${
           scrolled
-            ? "bg-background/95 backdrop-blur-xl border-b border-foreground/[0.06] shadow-[0_1px_20px_rgba(0,0,0,0.1)]"
-            : "bg-transparent"
+            ? "bg-background/95 backdrop-blur-xl border-b border-foreground/[0.08] shadow-[0_1px_20px_rgba(0,0,0,0.12)]"
+            : "bg-background/85 backdrop-blur-xl border-b border-foreground/[0.04]"
         }`}
       >
         <a href="#home" className="flex items-center gap-2 no-underline">
-          <img src={logo} alt="Zaderi Technologies" className="h-14 w-auto" />
+          <img src={logo} alt="Zaderi Technologies" className="h-16 w-auto" />
         </a>
 
         <div className="hidden lg:flex items-center gap-7">
@@ -45,7 +45,7 @@ const Navbar = () => {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="text-soft text-[0.82rem] font-medium hover:text-foreground transition-colors no-underline"
+                  className="text-foreground/80 text-[0.82rem] font-medium hover:text-foreground transition-colors no-underline"
                 >
                   {link.label}
                 </a>

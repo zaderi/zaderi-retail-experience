@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
         <div>
           <a href="#home" className="flex items-center gap-2 no-underline mb-4">
-            <img src={logo} alt="Zaderi Technologies" className="h-14 w-auto" />
+            <img src={logo} alt="Zaderi Technologies" className="h-16 w-auto" />
           </a>
           <p className="text-muted-foreground text-sm font-normal leading-relaxed max-w-[240px]">
             Smart business solutions and AI automation for modern businesses. Built in Uganda, trusted across East Africa.

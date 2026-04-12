@@ -1,11 +1,23 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 const DemoSection = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [interest, setInterest] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+
+    const subject = encodeURIComponent(`Demo request from ${fullName || "website visitor"}`);
+    const body = encodeURIComponent(
+      `Name: ${fullName}\nPhone: ${phone}\nEmail: ${email}\nInterest: ${interest}\n\nMessage:\n${message}`
+    );
+    window.location.href = `mailto:sales@zaderitechnologies.com?subject=${subject}&body=${body}`;
+
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
   };
@@ -41,22 +53,44 @@ const DemoSection = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div className="flex flex-col gap-1.5">
               <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Full Name</label>
-              <input type="text" placeholder="Your full name" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
+              <input
+                type="text"
+                placeholder="Your full name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
+              />
             </div>
             <div className="flex flex-col gap-1.5">
               <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Phone</label>
-              <input type="tel" placeholder="+256 700 000 000" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
+              <input
+                type="tel"
+                placeholder="+256 700 000 000"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
+              />
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5 mb-4">
             <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email</label>
-            <input type="email" placeholder="you@business.com" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
+            <input
+              type="email"
+              placeholder="you@business.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
+            />
           </div>
 
           <div className="flex flex-col gap-1.5 mb-4">
             <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">What are you interested in?</label>
-            <select className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric appearance-none">
+            <select
+              value={interest}
+              onChange={(e) => setInterest(e.target.value)}
+              className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric appearance-none"
+            >
               <option value="">Select...</option>
               <option>Retail Management System</option>
               <option>AI Chatbots & Automation</option>
@@ -67,7 +101,13 @@ const DemoSection = () => {
 
           <div className="flex flex-col gap-1.5 mb-6">
             <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Message (Optional)</label>
-            <textarea placeholder="Tell us about your business..." rows={3} className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all resize-y" />
+            <textarea
+              placeholder="Tell us about your business..."
+              rows={3}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all resize-y"
+            />
           </div>
 
           <button

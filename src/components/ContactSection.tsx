@@ -1,11 +1,22 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 const ContactSection = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+
+    const encodedSubject = encodeURIComponent(`Contact form: ${subject || "Website inquiry"}`);
+    const body = encodeURIComponent(
+      `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`
+    );
+    window.location.href = `mailto:sales@zaderitechnologies.com?subject=${encodedSubject}&body=${body}`;
+
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
   };
@@ -83,23 +94,46 @@ const ContactSection = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Name</label>
-                <input type="text" placeholder="Your name" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
-              </div>
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email</label>
-                <input type="email" placeholder="your@email.com" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
-              </div>
+              <input
+                type="text"
+                placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
+              />
             </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email</label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
+              />
+            </div>
+          </div>
 
-            <div className="flex flex-col gap-1.5 mb-4">
-              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Subject</label>
-              <input type="text" placeholder="How can we help?" className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all" />
-            </div>
+          <div className="flex flex-col gap-1.5 mb-4">
+            <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Subject</label>
+            <input
+              type="text"
+              placeholder="How can we help?"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
+            />
+          </div>
 
-            <div className="flex flex-col gap-1.5 mb-6">
-              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Message</label>
-              <textarea placeholder="Tell us more..." rows={4} className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all resize-y" />
-            </div>
+          <div className="flex flex-col gap-1.5 mb-6">
+            <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Message</label>
+            <textarea
+              placeholder="Tell us more..."
+              rows={4}
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all resize-y"
+            />
 
             <button
               type="submit"

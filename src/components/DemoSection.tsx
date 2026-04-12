@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { FormEvent, useState } from "react";
+import { fetchApi } from "../lib/api";
 
 const DemoSection = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -13,11 +14,8 @@ const DemoSection = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('/api/forms', {
+      const response = await fetchApi('/api/forms', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           type: 'demo',
           full_name: fullName,

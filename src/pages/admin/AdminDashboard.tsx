@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetchApi } from '@/lib/api';
 import {
   BarChart3,
   Users,
@@ -66,10 +67,10 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('adminToken');
       const [formsRes, usersRes] = await Promise.all([
-        fetch('/api/forms', {
+        fetchApi('/api/forms', {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        fetch('/api/users', {
+        fetchApi('/api/users', {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);

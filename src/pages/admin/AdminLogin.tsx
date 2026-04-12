@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { fetchApi } from '@/lib/api';
 
 const AdminLogin = () => {
   const [username, setUsername] = useState('');
@@ -14,11 +15,8 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetchApi('/api/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({ username, password }),
       });
 

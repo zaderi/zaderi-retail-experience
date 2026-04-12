@@ -9,27 +9,28 @@ const DemoSection = () => {
   const [interest, setInterest] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // Send to backend API
-    fetch('/api/forms', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        type: 'demo',
-        fullName,
-        phone,
-        email,
-        interest,
-        message
-      })
-    })
-    .then(response => {
+    try {
+      // Send to backend API
+      const response = await fetch('/api/forms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'demo',   // Tells backend to use the demo_requests table
+          name: fullName, // Maps frontend fullName to backend "name"
+          phone,
+          email,
+          interest,
+          message
+        })
+      });
+
       if (response.ok) {
-        // Also open email client as fallback
+        // Fallback: Open email client
         const subject = encodeURIComponent(`Demo request from ${fullName || "website visitor"}`);
         const body = encodeURIComponent(
           `Name: ${fullName}\nPhone: ${phone}\nEmail: ${email}\nInterest: ${interest}\n\nMessage:\n${message}`
@@ -37,15 +38,23 @@ const DemoSection = () => {
         window.location.href = `mailto:sales@zaderitechnologies.com?subject=${subject}&body=${body}`;
 
         setSubmitted(true);
-        setTimeout(() => setSubmitted(false), 3000);
+        // Reset form fields
+        setFullName("");
+        setPhone("");
+        setEmail("");
+        setInterest("");
+        setMessage("");
+        
+        setTimeout(() => setSubmitted(false), 5000);
       } else {
-        alert('Failed to submit form. Please try again.');
+        const errorData = await response.json();
+        console.error('Server error:', errorData);
+        alert('Failed to submit form. Please check your connection or try again.');
       }
-    })
-    .catch(error => {
+    } catch (error) {
       console.error('Error submitting form:', error);
       alert('Network error. Please try again.');
-    });
+    }
   };
 
   return (
@@ -80,6 +89,7 @@ const DemoSection = () => {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Full Name</label>
               <input
+                required
                 type="text"
                 placeholder="Your full name"
                 value={fullName}
@@ -90,6 +100,7 @@ const DemoSection = () => {
             <div className="flex flex-col gap-1.5">
               <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Phone</label>
               <input
+                required
                 type="tel"
                 placeholder="+256 700 000 000"
                 value={phone}
@@ -102,6 +113,7 @@ const DemoSection = () => {
           <div className="flex flex-col gap-1.5 mb-4">
             <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email</label>
             <input
+              required
               type="email"
               placeholder="you@business.com"
               value={email}
@@ -112,17 +124,23 @@ const DemoSection = () => {
 
           <div className="flex flex-col gap-1.5 mb-4">
             <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">What are you interested in?</label>
-            <select
-              value={interest}
-              onChange={(e) => setInterest(e.target.value)}
-              className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric appearance-none"
-            >
-              <option value="">Select...</option>
-              <option>Retail Management System</option>
-              <option>AI Chatbots & Automation</option>
-              <option>Both - Full Suite</option>
-              <option>Custom Solution</option>
-            </select>
+            <div className="relative">
+              <select
+                required
+                value={interest}
+                onChange={(e) => setInterest(e.target.value)}
+                className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric appearance-none"
+              >
+                <option value="">Select...</option>
+                <option value="Retail Management System">Retail Management System</option>
+                <option value="AI Chatbots & Automation">AI Chatbots & Automation</option>
+                <option value="Both - Full Suite">Both - Full Suite</option>
+                <option value="Custom Solution">Custom Solution</option>
+              </select>
+              <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-muted-foreground">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-col gap-1.5 mb-6">
@@ -138,7 +156,12 @@ const DemoSection = () => {
 
           <button
             type="submit"
-            className="w-full gradient-primary text-foreground py-3.5 rounded-lg font-semibold text-[0.9rem] shadow-glow hover:shadow-[0_12px_40px_hsla(213,94%,52%,0.45)] transition-all"
+            disabled={submitted}
+            className={`w-full py-3.5 rounded-lg font-semibold text-[0.9rem] transition-all ${
+              submitted 
+                ? "bg-green-500/20 text-green-400 border border-green-500/50" 
+                : "gradient-primary text-foreground shadow-glow hover:shadow-[0_12px_40px_hsla(213,94%,52%,0.45)]"
+            }`}
           >
             {submitted ? "✓ Request Sent!" : "Book My Free Demo"}
           </button>

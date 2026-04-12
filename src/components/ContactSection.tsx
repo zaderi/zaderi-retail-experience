@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { FormEvent, useState } from "react";
-import { supabase } from "../lib/supabase";
 
 const ContactSection = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -13,36 +12,27 @@ const ContactSection = () => {
     e.preventDefault();
 
     try {
-      if (supabase) {
-        const { error } = await supabase
-          .from('contacts')
-          .insert([
-            {
-              name,
-              email,
-              subject,
-              message
-            }
-          ]);
+      const response = await fetch('/api/forms', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'contact',
+          name,
+          email,
+          subject,
+          message,
+        }),
+      });
 
-        if (error) {
-          console.error('Error inserting contact:', error);
-          alert('Failed to submit form. Please try again.');
-          return;
-        }
-      } else {
-        console.warn('Supabase is not configured, skipping database insert.');
+      if (!response.ok) {
+        console.error('Failed to submit contact form:', await response.text());
+        alert('Failed to submit form. Please try again.');
+        return;
       }
 
-      // Also open email client as fallback
-      const encodedSubject = encodeURIComponent(`Contact form: ${subject || "Website inquiry"}`);
-      const body = encodeURIComponent(
-        `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\n\nMessage:\n${message}`
-      );
-      window.location.href = `mailto:sales@zaderitechnologies.com?subject=${encodedSubject}&body=${body}`;
-
       setSubmitted(true);
-      // Clear form fields
       setName("");
       setEmail("");
       setSubject("");

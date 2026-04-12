@@ -14,22 +14,26 @@ const DemoSection = () => {
     e.preventDefault();
 
     try {
-      const { error } = await supabase
-        .from('demo_requests')
-        .insert([
-          {
-            full_name: fullName,
-            phone,
-            email,
-            interest,
-            message
-          }
-        ]);
+      if (supabase) {
+        const { error } = await supabase
+          .from('demo_requests')
+          .insert([
+            {
+              full_name: fullName,
+              phone,
+              email,
+              interest,
+              message
+            }
+          ]);
 
-      if (error) {
-        console.error('Error inserting demo request:', error);
-        alert('Failed to submit form. Please try again.');
-        return;
+        if (error) {
+          console.error('Error inserting demo request:', error);
+          alert('Failed to submit form. Please try again.');
+          return;
+        }
+      } else {
+        console.warn('Supabase is not configured, skipping database insert.');
       }
 
       // Fallback: Open email client

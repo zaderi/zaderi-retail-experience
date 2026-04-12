@@ -5,13 +5,13 @@ const services = [
   {
     icon: Monitor,
     title: "Point of Sale",
-    desc: "Lightning-fast, touch-friendly POS that handles transactions, receipts, and multiple payment methods — including mobile money.",
+    desc: "Lightning-fast, touch-friendly POS that handles transactions, receipts, and multiple payment methods including mobile money.",
     features: ["Touch-screen interface", "Cash, Mobile Money & Card", "Receipt printing", "Offline mode"],
   },
   {
     icon: Store,
     title: "Retail Management",
-    desc: "Complete back-office system for managing your entire retail operation — purchasing, suppliers, customers, and more.",
+    desc: "Complete back-office system for managing your entire retail operation purchasing, suppliers, customers, and more.",
     features: ["Multi-branch support", "Supplier management", "Customer loyalty", "Pricing engine"],
   },
   {
@@ -56,7 +56,7 @@ const ServicesSection = () => {
             Everything Your Retail Business Needs
           </h2>
           <p className="text-soft text-[0.95rem] font-normal leading-relaxed">
-            Built specifically for the modern Ugandan retail market — from small shops to multi-branch chains.
+            Built specifically for the modern Ugandan retail market, from small shops to multi-branch chains.
           </p>
         </motion.div>
 

@@ -1,12 +1,12 @@
 import { motion } from "framer-motion";
 
 const reasons = [
-  { num: "01", title: "Rapid Deployment", desc: "We specialize in 'vibe coding' — fast, intuitive full-stack development that gets your solutions live in days, not months." },
-  { num: "02", title: "Local Expertise", desc: "We understand the East African market — local currency, mobile money, and region-specific needs are built right into every solution." },
+  { num: "01", title: "Rapid Deployment", desc: "Fast, intuitive full-stack development that gets your solutions live in days, not months." },
+  { num: "02", title: "Local Expertise", desc: "We understand the East African market. Local currency, mobile money, and region-specific needs are built right into every solution." },
   { num: "03", title: "Always-On Support", desc: "24/7 support via WhatsApp, phone, or in person. We don't leave you stranded when you need help the most." },
-  { num: "04", title: "Offline Capability", desc: "Power cuts and internet downtime won't stop your business. Our systems keep running offline and sync when you're back online." },
-  { num: "05", title: "AI-First Approach", desc: "We integrate AI at every layer — from intelligent chatbots and lead-gen bots to predictive analytics that help you sell smarter." },
-  { num: "06", title: "Affordable & Scalable", desc: "Enterprise-grade features without enterprise pricing. Start small and scale as you grow — our tools grow with you." },
+  { num: "04", title: "Offline Capability", desc: "Our systems can keep running offline and sync automatically when connectivity is restored." },
+  { num: "05", title: "AI-First Approach", desc: "We integrate AI at every layer, from intelligent chatbots and lead-gen bots to predictive analytics that help you sell smarter." },
+  { num: "06", title: "Affordable & Scalable", desc: "Enterprise-grade features without enterprise pricing. Start small and scale as you grow." },
 ];
 
 const WhySection = () => {
@@ -25,7 +25,7 @@ const WhySection = () => {
             Built Different. Built Better.
           </h2>
           <p className="text-soft text-[0.95rem] font-normal leading-relaxed">
-            We combine rapid "vibe coding" deployment with deep technical expertise to deliver full-stack solutions at speed.
+            We combine latest technology deployments with deep technical expertise to deliver full-stack solutions.
           </p>
         </motion.div>
 

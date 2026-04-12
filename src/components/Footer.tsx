@@ -1,6 +1,11 @@
-import logo from "@/assets/logo-transparent.png";
+import { useTheme } from "@/context/ThemeContext";
+import logoTransparent from "@/assets/logo-transparent.png";
+import logoWhite from "@/assets/logo-white.jpeg";
 
 const Footer = () => {
+  const { theme } = useTheme();
+  const logo = theme === "light" ? logoWhite : logoTransparent;
+
   return (
     <footer className="relative z-10 bg-background border-t border-foreground/[0.06] pt-14 pb-8 px-[5%]">
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
@@ -9,7 +14,7 @@ const Footer = () => {
             <img src={logo} alt="Zaderi Technologies" className="h-9 w-auto" />
           </a>
           <p className="text-muted-foreground text-sm font-normal leading-relaxed max-w-[240px]">
-            Smart retail solutions & AI automation for modern businesses. Built in Uganda, trusted across East Africa.
+            Smart business solutions and AI automation for modern businesses. Built in Uganda, trusted across East Africa.
           </p>
         </div>
 
@@ -29,7 +34,7 @@ const Footer = () => {
         <div>
           <h5 className="font-display text-xs font-bold uppercase tracking-[0.1em] text-foreground mb-4">Solutions</h5>
           <ul className="list-none flex flex-col gap-2">
-            {["POS Systems", "Retail Management", "AI Chatbots", "Automation"].map((l) => (
+            {["Retail Management", "AI Chatbots", "Automation"].map((l) => (
               <li key={l}>
                 <a href="#services" className="text-muted-foreground text-sm no-underline hover:text-foreground transition-colors">
                   {l}

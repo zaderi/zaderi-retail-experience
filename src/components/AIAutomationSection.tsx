@@ -5,7 +5,7 @@ const aiFeatures = [
   {
     icon: Bot,
     title: "Custom AI Agents",
-    desc: "Intelligent AI agents tailored to your business workflows — from customer inquiries to order processing and beyond.",
+    desc: "Intelligent AI agents tailored to your business workflows, from customer inquiries to order processing and beyond.",
   },
   {
     icon: MessageSquare,
@@ -15,7 +15,7 @@ const aiFeatures = [
   {
     icon: Users,
     title: "Lead Generation Bots",
-    desc: "Smart bots that qualify leads, capture contact information, and nurture prospects automatically — even while you sleep.",
+    desc: "Smart bots that qualify leads, capture contact information, and nurture prospects automatically even while you sleep.",
   },
   {
     icon: Clock,
@@ -50,7 +50,7 @@ const AIAutomationSection = () => {
               Automate. Engage. <span className="gradient-text">Scale.</span>
             </h2>
             <p className="text-soft text-[0.95rem] font-normal leading-relaxed mb-8">
-              From custom AI chatbots to intelligent lead generation systems, we deploy cutting-edge automation solutions using no-code and low-code tools — so your business works smarter, not harder.
+              From custom AI chatbots to intelligent lead generation systems, we deploy cutting-edge automation solutions using no-code and low-code tools so your business works smarter, not harder.
             </p>
 
             {/* Chat Preview */}
@@ -69,10 +69,10 @@ const AIAutomationSection = () => {
                   Hi! 👋 I'm your AI assistant. How can I help you today?
                 </div>
                 <div className="bg-cobalt/20 rounded-lg rounded-tr-sm px-3.5 py-2.5 text-sm text-foreground max-w-[85%] self-end">
-                  I'd like to know about your POS pricing
+                  How does your retail management system work?
                 </div>
                 <div className="bg-foreground/[0.04] rounded-lg rounded-tl-sm px-3.5 py-2.5 text-sm text-soft max-w-[85%]">
-                  Great question! Our POS plans start from UGX 150,000/month. Want me to schedule a free demo? 🚀
+                  Our retail system handles everything from point of sale, inventory tracking, sales analytics, and supplier management all in one platform. Would you like me to book a free demo for you? 🚀
                 </div>
               </div>
             </div>

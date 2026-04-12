@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
-import logo from "@/assets/logo-transparent.png";
+import { Menu, X, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/context/ThemeContext";
+import logoTransparent from "@/assets/logo-transparent.png";
+import logoWhite from "@/assets/logo-white.jpeg";
 
 const navLinks = [
   { label: "Home", href: "#home" },
@@ -14,6 +16,7 @@ const navLinks = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -21,12 +24,14 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const logo = theme === "light" ? logoWhite : logoTransparent;
+
   return (
     <>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[5%] h-[72px] transition-all duration-300 ${
           scrolled
-            ? "bg-background/95 backdrop-blur-xl border-b border-foreground/[0.06] shadow-[0_1px_20px_rgba(0,0,0,0.3)]"
+            ? "bg-background/95 backdrop-blur-xl border-b border-foreground/[0.06] shadow-[0_1px_20px_rgba(0,0,0,0.1)]"
             : "bg-transparent"
         }`}
       >
@@ -34,34 +39,50 @@ const Navbar = () => {
           <img src={logo} alt="Zaderi Technologies" className="h-9 w-auto" />
         </a>
 
-        <ul className="hidden lg:flex items-center gap-7 list-none">
-          {navLinks.map((link) => (
-            <li key={link.href}>
-              <a
-                href={link.href}
-                className="text-soft text-[0.82rem] font-medium hover:text-foreground transition-colors no-underline"
-              >
-                {link.label}
-              </a>
-            </li>
-          ))}
-          <li>
-            <a
-              href="#demo"
-              className="gradient-primary text-foreground px-5 py-2.5 rounded-lg text-[0.82rem] font-semibold no-underline hover:shadow-glow transition-all"
-            >
-              Request Demo
-            </a>
-          </li>
-        </ul>
+        <div className="hidden lg:flex items-center gap-7">
+          <ul className="flex items-center gap-7 list-none">
+            {navLinks.map((link) => (
+              <li key={link.href}>
+                <a
+                  href={link.href}
+                  className="text-soft text-[0.82rem] font-medium hover:text-foreground transition-colors no-underline"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg glass-card hover:bg-foreground/[0.06] transition-all"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4 text-foreground" /> : <Moon className="w-4 h-4 text-foreground" />}
+          </button>
+          <a
+            href="#demo"
+            className="gradient-primary text-primary-foreground px-5 py-2.5 rounded-lg text-[0.82rem] font-semibold no-underline hover:shadow-glow transition-all"
+          >
+            Request Demo
+          </a>
+        </div>
 
-        <button
-          className="lg:hidden p-1 bg-transparent border-none"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="Menu"
-        >
-          {isOpen ? <X className="text-foreground w-6 h-6" /> : <Menu className="text-foreground w-6 h-6" />}
-        </button>
+        <div className="lg:hidden flex items-center gap-2">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg glass-card"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? <Sun className="w-4 h-4 text-foreground" /> : <Moon className="w-4 h-4 text-foreground" />}
+          </button>
+          <button
+            className="p-1 bg-transparent border-none"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Menu"
+          >
+            {isOpen ? <X className="text-foreground w-6 h-6" /> : <Menu className="text-foreground w-6 h-6" />}
+          </button>
+        </div>
       </nav>
 
       {isOpen && (
@@ -79,7 +100,7 @@ const Navbar = () => {
           <a
             href="#demo"
             onClick={() => setIsOpen(false)}
-            className="gradient-primary text-foreground text-center py-3 rounded-lg mt-3 no-underline font-semibold"
+            className="gradient-primary text-primary-foreground text-center py-3 rounded-lg mt-3 no-underline font-semibold"
           >
             Request Demo
           </a>

@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/context/ThemeContext";
 import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import ServicesSection from "@/components/ServicesSection";
@@ -13,20 +14,22 @@ import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 const Index = () => {
   return (
-    <div>
-      <Navbar />
-      <HeroSection />
-      <ServicesSection />
-      <AIAutomationSection />
-      <AboutSection />
-      <ProductsSection />
-      <WhySection />
-      <TestimonialsSection />
-      <DemoSection />
-      <ContactSection />
-      <Footer />
-      <WhatsAppFloat />
-    </div>
+    <ThemeProvider>
+      <div>
+        <Navbar />
+        <HeroSection />
+        <ServicesSection />
+        <AIAutomationSection />
+        <AboutSection />
+        <ProductsSection />
+        <WhySection />
+        <TestimonialsSection />
+        <DemoSection />
+        <ContactSection />
+        <Footer />
+        <WhatsAppFloat />
+      </div>
+    </ThemeProvider>
   );
 };
 

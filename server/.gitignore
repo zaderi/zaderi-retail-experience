@@ -9,7 +9,6 @@ lerna-debug.log*
 
 node_modules
 dist
-dist-ssr
 *.local
 
 # Environment variables
@@ -19,13 +18,10 @@ dist-ssr
 .env.test.local
 .env.production.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Data files (for production, use proper database)
+users.json
+forms.json
+content.json
+
+# Uploads (consider cloud storage for production)
+uploads/

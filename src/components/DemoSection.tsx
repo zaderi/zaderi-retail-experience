@@ -12,14 +12,40 @@ const DemoSection = () => {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
 
-    const subject = encodeURIComponent(`Demo request from ${fullName || "website visitor"}`);
-    const body = encodeURIComponent(
-      `Name: ${fullName}\nPhone: ${phone}\nEmail: ${email}\nInterest: ${interest}\n\nMessage:\n${message}`
-    );
-    window.location.href = `mailto:sales@zaderitechnologies.com?subject=${subject}&body=${body}`;
+    // Send to backend API
+    fetch('/api/forms', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'demo',
+        fullName,
+        phone,
+        email,
+        interest,
+        message
+      })
+    })
+    .then(response => {
+      if (response.ok) {
+        // Also open email client as fallback
+        const subject = encodeURIComponent(`Demo request from ${fullName || "website visitor"}`);
+        const body = encodeURIComponent(
+          `Name: ${fullName}\nPhone: ${phone}\nEmail: ${email}\nInterest: ${interest}\n\nMessage:\n${message}`
+        );
+        window.location.href = `mailto:sales@zaderitechnologies.com?subject=${subject}&body=${body}`;
 
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+        setSubmitted(true);
+        setTimeout(() => setSubmitted(false), 3000);
+      } else {
+        alert('Failed to submit form. Please try again.');
+      }
+    })
+    .catch(error => {
+      console.error('Error submitting form:', error);
+      alert('Network error. Please try again.');
+    });
   };
 
   return (

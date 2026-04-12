@@ -27,7 +27,7 @@ const HeroSection = () => {
               className="inline-flex items-center gap-2 bg-cobalt/10 border border-cobalt/20 text-electric px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide mb-8"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              AI-Powered Retail Technology
+              Smart Business Technology
             </motion.div>
 
             <motion.h1
@@ -38,7 +38,7 @@ const HeroSection = () => {
               style={{ fontSize: "clamp(2.5rem, 5vw, 4rem)" }}
             >
               Accelerating Business with{" "}
-              <span className="gradient-text">AI & Automation</span>
+              <span className="gradient-text">Modern Technology</span>
             </motion.h1>
 
             <motion.p
@@ -81,7 +81,7 @@ const HeroSection = () => {
               {[
                 { val: "500+", label: "Businesses Served" },
                 { val: "99.9%", label: "System Uptime" },
-                { val: "24/7", label: "AI-Powered Support" },
+                { val: "24/7", label: "Customer Support" },
               ].map((s) => (
                 <div key={s.label}>
                   <h3 className="font-display text-3xl font-extrabold text-foreground">{s.val}</h3>

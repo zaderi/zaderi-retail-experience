@@ -16,7 +16,7 @@ const AboutSection = () => {
             <div className="glass-card-solid rounded-2xl p-10">
               <img src={logo} alt="Zaderi Technologies" className="h-14 w-auto mb-6" />
               <p className="text-soft text-[0.95rem] font-normal leading-relaxed mb-6">
-                Built in Uganda, designed for Africa's growing retail landscape. We understand the unique challenges facing modern businesses — and we build solutions that actually work.
+                Built for Africa's growing tech landscape. We understand the unique challenges facing modern businesses and we build custom solutions that suit them.
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {[
@@ -45,17 +45,17 @@ const AboutSection = () => {
               Technology That Drives Business Forward
             </h2>
             <p className="text-soft text-[0.95rem] font-normal leading-relaxed mb-4">
-              Zaderi Technologies Ltd is a Ugandan technology company specializing in retail solutions and AI automation. We believe every business — from a small shop to a multi-branch chain — deserves world-class tools to compete and thrive.
+              Zaderi Technologies is a Ugandan technology company specializing in smart business solutions and AI automation. We believe every business from a small shop to an enterprise chain deserves world-class tools to compete and thrive.
             </p>
             <p className="text-soft text-[0.95rem] font-normal leading-relaxed mb-8">
-              Founded with a mission to digitize business across East Africa, our team combines deep retail expertise with cutting-edge AI to deliver solutions that are powerful yet simple to use.
+              Founded with a mission to digitize business across Africa, our team combines deep business expertise with cutting-edge technology to deliver solutions that are powerful, yet simple to use.
             </p>
 
             <div className="flex flex-col gap-4">
               <div className="bg-cobalt/10 border border-cobalt/15 rounded-xl p-5">
                 <h4 className="font-display text-xs font-bold text-electric uppercase tracking-[0.1em] mb-2">Our Mission</h4>
                 <p className="text-soft text-sm font-normal leading-relaxed">
-                  To empower businesses across Africa with affordable, reliable technology — from smart POS systems to AI-powered automation — that drives efficiency and sustainable growth.
+                  To empower businesses across Africa with affordable, reliable technology from smart business systems to AI-powered automations that drive efficiency and sustainable growth.
                 </p>
               </div>
               <div className="bg-cobalt/10 border border-cobalt/15 rounded-xl p-5">

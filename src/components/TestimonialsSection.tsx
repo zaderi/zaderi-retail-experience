@@ -34,7 +34,7 @@ const TestimonialsSection = () => {
         >
           <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-3">Client Stories</span>
           <h2 className="font-display font-extrabold tracking-tight leading-tight" style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>
-            Trusted by Retail Businesses
+            Trusted by Businesses
           </h2>
         </motion.div>
 

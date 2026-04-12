@@ -33,7 +33,7 @@ const ContactSection = () => {
             transition={{ duration: 0.6 }}
           >
             <p className="text-soft text-[0.92rem] font-normal leading-relaxed mb-8">
-              Whether you need a POS system, AI chatbot, or full business automation — our team is ready to help.
+              Whether you need a POS system, AI chatbot, or full business automation, our team is ready to help.
             </p>
 
             <div className="flex flex-col gap-3">
@@ -41,7 +41,7 @@ const ContactSection = () => {
                 { icon: "✉️", label: "Email", value: "sales@zaderitechnologies.com", href: "mailto:sales@zaderitechnologies.com" },
                 { icon: "📞", label: "Phone", value: "+256 771 919 582", href: "tel:+256771919582" },
                 { icon: "📍", label: "Location", value: "Kampala, Uganda" },
-                { icon: "⏰", label: "Hours", value: "Mon–Sat: 8:00 AM – 6:00 PM" },
+                { icon: "⏰", label: "Hours", value: "Mon to Sat: 8:00 AM to 6:00 PM" },
               ].map((item) => (
                 <a
                   key={item.label}
@@ -105,7 +105,7 @@ const ContactSection = () => {
               type="submit"
               className="w-full gradient-primary text-foreground py-3.5 rounded-lg font-semibold text-[0.9rem] shadow-glow transition-all"
             >
-              {submitted ? "✓ Message Sent!" : "Send Message →"}
+              {submitted ? "✓ Message Sent!" : "Send Message"}
             </button>
           </motion.form>
         </div>

@@ -58,9 +58,9 @@ const DemoSection = () => {
             <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">What are you interested in?</label>
             <select className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric appearance-none">
               <option value="">Select...</option>
-              <option>POS & Retail Management</option>
+              <option>Retail Management System</option>
               <option>AI Chatbots & Automation</option>
-              <option>Both — Full Suite</option>
+              <option>Both - Full Suite</option>
               <option>Custom Solution</option>
             </select>
           </div>
@@ -74,7 +74,7 @@ const DemoSection = () => {
             type="submit"
             className="w-full gradient-primary text-foreground py-3.5 rounded-lg font-semibold text-[0.9rem] shadow-glow hover:shadow-[0_12px_40px_hsla(213,94%,52%,0.45)] transition-all"
           >
-            {submitted ? "✓ Request Sent!" : "Book My Free Demo →"}
+            {submitted ? "✓ Request Sent!" : "Book My Free Demo"}
           </button>
         </motion.form>
       </div>

@@ -13,21 +13,25 @@ const ContactSection = () => {
     e.preventDefault();
 
     try {
-      const { error } = await supabase
-        .from('contacts')
-        .insert([
-          {
-            name,
-            email,
-            subject,
-            message
-          }
-        ]);
+      if (supabase) {
+        const { error } = await supabase
+          .from('contacts')
+          .insert([
+            {
+              name,
+              email,
+              subject,
+              message
+            }
+          ]);
 
-      if (error) {
-        console.error('Error inserting contact:', error);
-        alert('Failed to submit form. Please try again.');
-        return;
+        if (error) {
+          console.error('Error inserting contact:', error);
+          alert('Failed to submit form. Please try again.');
+          return;
+        }
+      } else {
+        console.warn('Supabase is not configured, skipping database insert.');
       }
 
       // Also open email client as fallback

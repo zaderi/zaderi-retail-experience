@@ -76,7 +76,7 @@
     --secondary-foreground: 222 47% 11%;
 
     --muted: 210 40% 94%;
-    --muted-foreground: 215 16% 47%;
+    --muted-foreground: 222 30% 28%;
 
     --accent: 170 80% 40%;
     --accent-foreground: 0 0% 100%;
@@ -93,7 +93,7 @@
     --cobalt: 213 94% 52%;
     --electric: 213 94% 45%;
     --cyan: 170 80% 38%;
-    --soft: 215 16% 47%;
+    --soft: 222 30% 28%;
     --glass: 222 47% 11% / 0.04;
     --glass-border: 222 47% 11% / 0.1;
 

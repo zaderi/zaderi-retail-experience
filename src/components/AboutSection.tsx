@@ -14,7 +14,7 @@ const AboutSection = () => {
             className="relative"
           >
             <div className="glass-card-solid rounded-2xl p-10">
-              <img src={logo} alt="Zaderi Technologies" className="h-14 w-auto mb-6" />
+              <img src={logo} alt="Zaderi Technologies" className="h-16 w-auto mb-6" />
               <p className="text-soft text-[0.95rem] font-normal leading-relaxed mb-6">
                 Built for Africa's growing tech landscape. We understand the unique challenges facing modern businesses and we build custom solutions that suit them.
               </p>

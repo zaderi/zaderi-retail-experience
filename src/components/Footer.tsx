@@ -11,7 +11,7 @@ const Footer = () => {
       <div className="max-w-[1200px] mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
         <div>
           <a href="#home" className="flex items-center gap-2 no-underline mb-4">
-            <img src={logo} alt="Zaderi Technologies" className="h-9 w-auto" />
+            <img src={logo} alt="Zaderi Technologies" className="h-14 w-auto" />
           </a>
           <p className="text-muted-foreground text-sm font-normal leading-relaxed max-w-[240px]">
             Smart business solutions and AI automation for modern businesses. Built in Uganda, trusted across East Africa.
@@ -58,10 +58,6 @@ const Footer = () => {
 
       <div className="max-w-[1200px] mx-auto pt-6 border-t border-foreground/[0.06] flex justify-between items-center flex-wrap gap-3">
         <p className="text-muted-foreground text-xs">© 2026 Zaderi Technologies Ltd. All rights reserved.</p>
-        <div className="flex gap-2">
-          <span className="bg-cobalt/10 border border-cobalt/15 text-electric text-[0.7rem] font-semibold px-2.5 py-1 rounded-md tracking-wide">SSL Secured</span>
-          <span className="bg-cobalt/10 border border-cobalt/15 text-electric text-[0.7rem] font-semibold px-2.5 py-1 rounded-md tracking-wide">Made in Uganda 🇺🇬</span>
-        </div>
       </div>
     </footer>
   );

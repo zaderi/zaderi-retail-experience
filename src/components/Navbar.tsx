@@ -36,7 +36,7 @@ const Navbar = () => {
         }`}
       >
         <a href="#home" className="flex items-center gap-2 no-underline">
-          <img src={logo} alt="Zaderi Technologies" className="h-9 w-auto" />
+          <img src={logo} alt="Zaderi Technologies" className="h-14 w-auto" />
         </a>
 
         <div className="hidden lg:flex items-center gap-7">

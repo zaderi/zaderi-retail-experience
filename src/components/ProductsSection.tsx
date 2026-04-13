@@ -20,6 +20,10 @@ const products = {
       "📈 Growth Insights",
     ],
     screen: "retail",
+    pricing: {
+      monthly: 69,
+      annual: 699,
+    },
   },
   ai: {
     title: "AI Automation Solutions",
@@ -39,6 +43,10 @@ const products = {
       "🎯 Customer Segmentation",
     ],
     screen: "ai",
+    pricing: {
+      monthly: 45,
+      annual: 450,
+    },
   },
 };
 
@@ -112,13 +120,13 @@ const ProductsSection = () => {
               <div className="flex flex-wrap gap-4">
                 <div className="flex-1 min-w-[140px] bg-cobalt/10 border border-cobalt/15 rounded-lg p-4 text-center">
                   <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Monthly</p>
-                  <p className="font-display text-2xl font-extrabold text-foreground">$45</p>
+                  <p className="font-display text-2xl font-extrabold text-foreground">${product.pricing.monthly}</p>
                   <p className="text-muted-foreground text-xs mt-1">per month</p>
                 </div>
                 <div className="flex-1 min-w-[140px] bg-cobalt/10 border border-cobalt/15 rounded-lg p-4 text-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 bg-cyan text-background text-[0.6rem] font-bold px-2 py-0.5 rounded-bl-lg">2 MONTHS FREE</div>
                   <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Annual</p>
-                  <p className="font-display text-2xl font-extrabold text-foreground">$450</p>
+                  <p className="font-display text-2xl font-extrabold text-foreground">${product.pricing.annual}</p>
                   <p className="text-muted-foreground text-xs mt-1">per year</p>
                 </div>
               </div>

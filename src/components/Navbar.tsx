@@ -51,7 +51,7 @@ const Navbar = () => {
               <li key={link.href}>
                 <a
                   href={link.href}
-                  className="text-foreground/80 text-[0.82rem] font-medium hover:text-foreground transition-colors no-underline"
+                  className="text-white/80 text-[0.82rem] font-medium hover:text-white transition-colors no-underline"
                 >
                   {link.label}
                 </a>
@@ -63,7 +63,7 @@ const Navbar = () => {
             className="p-2 rounded-lg glass-card hover:bg-foreground/[0.06] transition-all"
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun className="w-4 h-4 text-foreground" /> : <Moon className="w-4 h-4 text-foreground" />}
+            {theme === "dark" ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-white" />}
           </button>
           <a
             href="#demo"

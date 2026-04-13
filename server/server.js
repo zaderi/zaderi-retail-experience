@@ -145,10 +145,11 @@ app.get('/api/users', authenticateToken, (req, res) => {
   }
   const users = readData(USERS_FILE);
   res.json(users.map(u => ({
-    id: u.id,
+    user_id: u.id,
     username: u.username,
     role: u.role,
-    createdAt: u.createdAt
+    createdAt: u.createdAt,
+    is_primary: u.id === '1'
   })));
 });
 

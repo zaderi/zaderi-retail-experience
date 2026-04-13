@@ -22,10 +22,11 @@ interface FormSubmission {
 }
 
 interface UserRole {
-  id: string;
+  user_id: string;
   username: string;
   role: string;
   createdAt: string;
+  is_primary: boolean;
 }
 
 const AdminDashboard = () => {

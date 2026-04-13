@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { FormEvent, useState } from "react";
+import { fetchApi } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
 
 const ContactSection = () => {
@@ -23,25 +24,45 @@ const ContactSection = () => {
       return;
     }
 
-    if (!supabase) {
-      alert('Form submission is currently unavailable. Please try again later.');
-      return;
-    }
-
-    const { error } = await supabase
-      .from('form_submissions')
-      .insert({
-        type: 'contact',
-        name: name.trim(),
-        email: email.trim(),
-        subject: subject.trim(),
-        message: message.trim(),
+    try {
+      const response = await fetchApi('/api/forms', {
+        method: 'POST',
+        body: JSON.stringify({
+          type: 'contact',
+          name: name.trim(),
+          email: email.trim(),
+          subject: subject.trim(),
+          message: message.trim(),
+        }),
       });
 
-    if (error) {
-      console.error('Supabase error:', error);
-      alert('Failed to submit form. Please try again.');
-      return;
+      if (!response.ok) {
+        const errorBody = await response.json().catch(() => null);
+        throw new Error(errorBody?.message || 'Failed to submit form.');
+      }
+    } catch (apiError) {
+      console.warn('Backend submit failed, falling back to Supabase if configured.', apiError);
+
+      if (!supabase) {
+        alert('Form submission is currently unavailable. Please try again later.');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('form_submissions')
+        .insert({
+          type: 'contact',
+          name: name.trim(),
+          email: email.trim(),
+          subject: subject.trim(),
+          message: message.trim(),
+        });
+
+      if (error) {
+        console.error('Supabase error:', error);
+        alert('Failed to submit form. Please try again.');
+        return;
+      }
     }
 
     setSubmitted(true);

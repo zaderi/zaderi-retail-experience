@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { authFetch, fetchApi, getAuthToken, setAuthToken } from '@/lib/api';
 import {
   BarChart3, Users, FileText, Settings, LogOut, Menu,
   Trash2, UserPlus, Mail, Phone, Calendar, Download
@@ -9,21 +9,23 @@ import {
 interface FormSubmission {
   id: string;
   type: string;
-  name: string | null;
-  email: string | null;
-  phone: string | null;
-  subject: string | null;
-  message: string | null;
-  interest: string | null;
+  data: {
+    name?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    subject?: string | null;
+    message?: string | null;
+    interest?: string | null;
+  };
   status: string;
-  submitted_at: string;
+  submittedAt: string;
 }
 
 interface UserRole {
   id: string;
-  user_id: string;
+  username: string;
   role: string;
-  is_primary: boolean;
+  createdAt: string;
 }
 
 const AdminDashboard = () => {
@@ -52,74 +54,101 @@ const AdminDashboard = () => {
   const navigate = useNavigate();
 
   const loadData = useCallback(async () => {
-    const { data: formsData } = await supabase
-      .from('form_submissions')
-      .select('*')
-      .order('submitted_at', { ascending: false });
+    try {
+      const formsRes = await authFetch('/api/forms');
+      if (!formsRes.ok) {
+        throw new Error('Failed to load forms');
+      }
+      const formsData = await formsRes.json();
+      setForms(formsData as FormSubmission[]);
 
-    if (formsData) setForms(formsData as FormSubmission[]);
-
-    const { data: rolesData } = await supabase
-      .from('user_roles')
-      .select('*');
-
-    if (rolesData) setUserRoles(rolesData as UserRole[]);
-    setLoading(false);
-  }, []);
+      const usersRes = await authFetch('/api/users');
+      if (!usersRes.ok) {
+        throw new Error('Failed to load users');
+      }
+      const usersData = await usersRes.json();
+      setUserRoles(usersData as UserRole[]);
+    } catch (error) {
+      console.error('Dashboard load error:', error);
+      navigate('/adminpanel');
+    } finally {
+      setLoading(false);
+    }
+  }, [navigate]);
 
   useEffect(() => {
     const checkAuth = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      try {
+        const token = getAuthToken();
+        if (!token) {
+          navigate('/adminpanel');
+          return;
+        }
+
+        const meRes = await authFetch('/api/auth/me');
+        if (!meRes.ok) {
+          setAuthToken(null);
+          navigate('/adminpanel');
+          return;
+        }
+
+        const meData = await meRes.json();
+        setCurrentUserId(meData.id);
+        setCurrentUserEmail(meData.username || '');
+
+        if (meData.role !== 'admin') {
+          setAuthToken(null);
+          navigate('/adminpanel');
+          return;
+        }
+
+        setIsPrimary(meData.role === 'admin');
+        loadData();
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setAuthToken(null);
         navigate('/adminpanel');
-        return;
       }
-      setCurrentUserId(user.id);
-      setCurrentUserEmail(user.email || '');
-
-      const { data: roles } = await supabase
-        .from('user_roles')
-        .select('role, is_primary')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-
-      if (!roles) {
-        navigate('/adminpanel');
-        return;
-      }
-
-      setIsPrimary(roles.is_primary || false);
-      loadData();
     };
 
     checkAuth();
   }, [navigate, loadData]);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    setAuthToken(null);
     navigate('/adminpanel');
   };
 
   const updateFormStatus = async (formId: string, status: string) => {
-    const { error } = await supabase
-      .from('form_submissions')
-      .update({ status })
-      .eq('id', formId);
-
-    if (!error) {
+    try {
+      const response = await authFetch(`/api/forms/${formId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to update form status');
+      }
       setForms(forms.map(f => f.id === formId ? { ...f, status } : f));
+    } catch (error) {
+      console.error('Update status error:', error);
+      alert('Unable to update form status.');
     }
   };
 
   const deleteForm = async (formId: string) => {
     if (!confirm('Delete this submission?')) return;
-    const { error } = await supabase
-      .from('form_submissions')
-      .delete()
-      .eq('id', formId);
-
-    if (!error) setForms(forms.filter(f => f.id !== formId));
+    try {
+      const response = await authFetch(`/api/forms/${formId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete form');
+      }
+      setForms(forms.filter(f => f.id !== formId));
+    } catch (error) {
+      console.error('Delete form error:', error);
+      alert('Unable to delete submission.');
+    }
   };
 
   const exportCSV = (type: 'contact' | 'demo' | 'all') => {
@@ -128,9 +157,15 @@ const AdminDashboard = () => {
 
     const headers = ['Type', 'Name', 'Email', 'Phone', 'Subject', 'Interest', 'Message', 'Status', 'Submitted At'];
     const rows = filtered.map(f => [
-      f.type, f.name || '', f.email || '', f.phone || '',
-      f.subject || '', f.interest || '', (f.message || '').replace(/"/g, '""'),
-      f.status, new Date(f.submitted_at).toLocaleString()
+      f.type,
+      f.data.name || '',
+      f.data.email || '',
+      f.data.phone || '',
+      f.data.subject || '',
+      f.data.interest || '',
+      (f.data.message || '').replace(/"/g, '"'),
+      f.status,
+      new Date(f.submittedAt).toLocaleString()
     ]);
 
     const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
@@ -148,22 +183,26 @@ const AdminDashboard = () => {
     setAddingUser(true);
 
     try {
-      // Use edge function to create user (since signup is disabled)
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await supabase.functions.invoke('create-admin-user', {
-        body: { email: newEmail, password: newPassword },
-        headers: { Authorization: `Bearer ${session?.access_token}` }
+      const response = await authFetch('/api/users', {
+        method: 'POST',
+        body: JSON.stringify({
+          username: newEmail,
+          password: newPassword,
+          role: 'admin',
+        }),
       });
 
-      if (res.error) {
-        alert(res.error.message || 'Failed to create user');
-      } else {
-        setNewEmail('');
-        setNewPassword('');
-        setShowAddUser(false);
-        loadData();
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.message || 'Failed to create admin user');
       }
-    } catch {
+
+      setNewEmail('');
+      setNewPassword('');
+      setShowAddUser(false);
+      loadData();
+    } catch (error) {
+      console.error('Create admin user error:', error);
       alert('Failed to create user');
     } finally {
       setAddingUser(false);
@@ -173,13 +212,17 @@ const AdminDashboard = () => {
   const deleteAdminUser = async (userId: string) => {
     if (!confirm('Remove this admin user?')) return;
 
-    const res = await supabase.functions.invoke('delete-admin-user', {
-      body: { user_id: userId }
-    });
+    try {
+      const response = await authFetch(`/api/users/${userId}`, {
+        method: 'DELETE',
+      });
 
-    if (!res.error) {
+      if (!response.ok) {
+        throw new Error('Failed to delete user');
+      }
       loadData();
-    } else {
+    } catch (error) {
+      console.error('Delete admin user error:', error);
       alert('Failed to delete user');
     }
   };
@@ -195,14 +238,29 @@ const AdminDashboard = () => {
       return;
     }
 
-    const { error } = await supabase.auth.updateUser({ password: newPass });
-    if (error) {
-      setPassMsg(error.message);
-    } else {
+    if (!currentUserId) {
+      setPassMsg('Unable to update password. Please log in again.');
+      return;
+    }
+
+    try {
+      const response = await authFetch(`/api/users/${currentUserId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ password: newPass }),
+      });
+
+      if (!response.ok) {
+        const body = await response.json().catch(() => null);
+        throw new Error(body?.message || 'Failed to update password');
+      }
+
       setPassMsg('Password updated successfully!');
       setCurrentPassword('');
       setNewPass('');
       setConfirmPass('');
+    } catch (error) {
+      console.error('Change password error:', error);
+      setPassMsg('Failed to update password.');
     }
   };
 
@@ -300,8 +358,8 @@ const AdminDashboard = () => {
                       <div className="flex items-center gap-3">
                         <div className={`w-2 h-2 rounded-full ${form.status === 'unread' ? 'bg-electric' : 'bg-muted-foreground'}`} />
                         <div>
-                          <p className="font-medium text-foreground">{form.type === 'demo' ? 'Demo Request' : 'Contact Form'} {form.name && `- ${form.name}`}</p>
-                          <p className="text-sm text-muted-foreground">{new Date(form.submitted_at).toLocaleDateString()}</p>
+                          <p className="font-medium text-foreground">{form.type === 'demo' ? 'Demo Request' : 'Contact Form'} {form.data.name && `- ${form.data.name}`}</p>
+                          <p className="text-sm text-muted-foreground">{new Date(form.submittedAt).toLocaleDateString()}</p>
                         </div>
                       </div>
                       <button onClick={() => setActiveTab('forms')} className="text-electric hover:text-electric/80 text-sm">View</button>
@@ -348,7 +406,7 @@ const AdminDashboard = () => {
                           </h3>
                           <p className="text-sm text-muted-foreground flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
-                            {new Date(form.submitted_at).toLocaleString()}
+                            {new Date(form.submittedAt).toLocaleString()}
                           </p>
                         </div>
                       </div>
@@ -369,48 +427,48 @@ const AdminDashboard = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {form.name && (
+                      {form.data.name && (
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Name:</span>
-                          <span className="text-sm font-medium text-foreground">{form.name}</span>
+                          <span className="text-sm font-medium text-foreground">{form.data.name}</span>
                         </div>
                       )}
-                      {form.email && (
+                      {form.data.email && (
                         <div className="flex items-center gap-2">
                           <Mail className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Email:</span>
-                          <span className="text-sm font-medium text-foreground">{form.email}</span>
+                          <span className="text-sm font-medium text-foreground">{form.data.email}</span>
                         </div>
                       )}
-                      {form.phone && (
+                      {form.data.phone && (
                         <div className="flex items-center gap-2">
                           <Phone className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Phone:</span>
-                          <span className="text-sm font-medium text-foreground">{form.phone}</span>
+                          <span className="text-sm font-medium text-foreground">{form.data.phone}</span>
                         </div>
                       )}
-                      {form.subject && (
+                      {form.data.subject && (
                         <div className="flex items-center gap-2">
                           <FileText className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Subject:</span>
-                          <span className="text-sm font-medium text-foreground">{form.subject}</span>
+                          <span className="text-sm font-medium text-foreground">{form.data.subject}</span>
                         </div>
                       )}
-                      {form.interest && (
+                      {form.data.interest && (
                         <div className="flex items-center gap-2">
                           <BarChart3 className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Interest:</span>
-                          <span className="text-sm font-medium text-foreground">{form.interest}</span>
+                          <span className="text-sm font-medium text-foreground">{form.data.interest}</span>
                         </div>
                       )}
                     </div>
 
-                    {form.message && (
+                    {form.data.message && (
                       <div className="mt-4">
                         <p className="text-sm text-muted-foreground mb-2">Message:</p>
                         <div className="bg-muted/50 rounded-lg p-3">
-                          <p className="text-sm text-foreground whitespace-pre-wrap">{form.message}</p>
+                          <p className="text-sm text-foreground whitespace-pre-wrap">{form.data.message}</p>
                         </div>
                       </div>
                     )}

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchApi, setAuthToken } from '@/lib/api';
 
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
@@ -15,33 +15,27 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetchApi('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({
+          username: email,
+          password,
+        }),
       });
 
-      if (authError) {
-        setError(authError.message);
+      const body = await response.json().catch(() => null);
+      if (!response.ok) {
+        setError(body?.message || 'Invalid credentials');
         return;
       }
 
-      if (data.user) {
-        // Check if user has admin role
-        const { data: roles, error: roleError } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', data.user.id)
-          .eq('role', 'admin')
-          .maybeSingle();
-
-        if (roleError || !roles) {
-          await supabase.auth.signOut();
-          setError('Access denied. Admin privileges required.');
-          return;
-        }
-
+      if (body?.token) {
+        setAuthToken(body.token);
         navigate('/adminpanel/dashboard');
+        return;
       }
+
+      setError('Invalid credentials.');
     } catch {
       setError('Network error. Please try again.');
     } finally {
@@ -67,14 +61,14 @@ const AdminLogin = () => {
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Email
+                Username
               </label>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all"
-                placeholder="Enter admin email"
+                placeholder="admin"
                 required
               />
             </div>

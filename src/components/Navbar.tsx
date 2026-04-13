@@ -79,14 +79,14 @@ const Navbar = () => {
             className="p-2 rounded-lg glass-card"
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun className="w-4 h-4 text-foreground" /> : <Moon className="w-4 h-4 text-foreground" />}
+            {theme === "dark" ? <Sun className="w-4 h-4 text-white" /> : <Moon className="w-4 h-4 text-white" />}
           </button>
           <button
             className="p-1 bg-transparent border-none"
             onClick={() => setIsOpen(!isOpen)}
             aria-label="Menu"
           >
-            {isOpen ? <X className="text-foreground w-6 h-6" /> : <Menu className="text-foreground w-6 h-6" />}
+            {isOpen ? <X className="text-white w-6 h-6" /> : <Menu className="text-white w-6 h-6" />}
           </button>
         </div>
       </nav>

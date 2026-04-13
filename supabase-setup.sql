@@ -27,10 +27,10 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE forms ENABLE ROW LEVEL SECURITY;
 
 -- Create policies for users table (allow all operations for authenticated users)
-CREATE POLICY "Allow all operations on users" ON users FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Allow all operations on users" ON users FOR ALL USING (true);
 
 -- Create policies for forms table (allow all operations for authenticated users)
-CREATE POLICY "Allow all operations on forms" ON forms FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Allow all operations on forms" ON forms FOR ALL USING (true);
 
 -- Insert default admin user if not exists
 INSERT INTO users (id, username, password, role, created_at)

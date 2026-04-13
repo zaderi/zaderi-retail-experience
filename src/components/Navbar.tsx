@@ -36,8 +36,8 @@ const Navbar = () => {
           }`}
           style={{
             background: scrolled
-              ? "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 25%, rgba(255,255,255,0.4) 45%, hsla(213,60%,35%,0.9) 100%)"
-              : "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 25%, rgba(255,255,255,0.4) 45%, hsla(213,60%,30%,0.8) 100%)"
+              ? "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 18%, hsla(213,60%,35%,0.9) 100%)"
+              : "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 18%, hsla(213,60%,30%,0.8) 100%)"
           }}
         >
           <a href="#home" className="flex items-center gap-2 no-underline">

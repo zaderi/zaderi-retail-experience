@@ -8,10 +8,23 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    storage: localStorage,
-    persistSession: true,
-    autoRefreshToken: true,
+// Create client safely - won't crash if credentials are missing
+let supabaseClient: ReturnType<typeof createClient> | null = null;
+
+try {
+  if (SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY && !SUPABASE_URL.includes('your_supabase')) {
+    supabaseClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        storage: localStorage,
+        persistSession: true,
+        autoRefreshToken: true,
+      }
+    });
+  } else {
+    console.warn('Supabase is not configured. Forms will not save data.');
   }
-});
+} catch (error) {
+  console.error('Failed to initialize Supabase:', error);
+}
+
+export const supabase = supabaseClient;

@@ -23,6 +23,11 @@ const DemoSection = () => {
       return;
     }
 
+    if (!supabase) {
+      alert('Form submission is currently unavailable. Please try again later.');
+      return;
+    }
+
     const { error } = await supabase
       .from('form_submissions')
       .insert({
@@ -35,6 +40,7 @@ const DemoSection = () => {
       });
 
     if (error) {
+      console.error('Supabase error:', error);
       alert('Failed to submit form. Please try again.');
       return;
     }

@@ -24,16 +24,22 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const logo = theme === "light" ? logoWhite : logoTransparent;
+  // Always use white-background logo for navbar (better visibility on gradient)
+  const logo = logoWhite;
 
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[5%] h-[72px] transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[5%] h-[72px] transition-all duration-300 border-b ${
           scrolled
-            ? "bg-background/95 backdrop-blur-xl border-b border-foreground/[0.08] shadow-[0_1px_20px_rgba(0,0,0,0.12)]"
-            : "bg-background/85 backdrop-blur-xl border-b border-foreground/[0.04]"
+            ? "backdrop-blur-xl border-foreground/[0.08] shadow-[0_1px_20px_rgba(0,0,0,0.12)]"
+            : "backdrop-blur-xl border-foreground/[0.04]"
         }`}
+        style={{
+          background: scrolled
+            ? "linear-gradient(90deg, hsla(213,50%,25%,0.95) 0%, hsla(213,60%,35%,0.9) 50%, hsla(213,50%,25%,0.95) 100%)"
+            : "linear-gradient(90deg, hsla(213,50%,20%,0.85) 0%, hsla(213,60%,30%,0.8) 50%, hsla(213,50%,20%,0.85) 100%)"
+        }}
       >
         <a href="#home" className="flex items-center gap-2 no-underline">
           <img src={logo} alt="Zaderi Technologies" className="h-16 w-auto" />

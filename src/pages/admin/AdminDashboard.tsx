@@ -1,144 +1,215 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchApi } from '@/lib/api';
+import { supabase } from '@/integrations/supabase/client';
 import {
-  BarChart3,
-  Users,
-  FileText,
-  Settings,
-  LogOut,
-  Menu,
-  X,
-  Eye,
-  Edit,
-  Trash2,
-  UserPlus,
-  Mail,
-  Phone,
-  Calendar
+  BarChart3, Users, FileText, Settings, LogOut, Menu,
+  Trash2, UserPlus, Mail, Phone, Calendar, Download
 } from 'lucide-react';
 
-interface Form {
+interface FormSubmission {
   id: string;
   type: string;
-  data: any;
-  submittedAt: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  subject: string | null;
+  message: string | null;
+  interest: string | null;
   status: string;
+  submitted_at: string;
 }
 
-interface User {
+interface UserRole {
   id: string;
-  username: string;
+  user_id: string;
   role: string;
-  createdAt: string;
+  is_primary: boolean;
 }
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
-  const [forms, setForms] = useState<Form[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [forms, setForms] = useState<FormSubmission[]>([]);
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
+  const [isPrimary, setIsPrimary] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [formFilter, setFormFilter] = useState<'all' | 'contact' | 'demo'>('all');
+
+  // New user form
+  const [newEmail, setNewEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [showAddUser, setShowAddUser] = useState(false);
+  const [addingUser, setAddingUser] = useState(false);
+
+  // Password change
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPass, setNewPass] = useState('');
+  const [confirmPass, setConfirmPass] = useState('');
+  const [passMsg, setPassMsg] = useState('');
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    checkAuth();
-    loadData();
+  const loadData = useCallback(async () => {
+    const { data: formsData } = await supabase
+      .from('form_submissions')
+      .select('*')
+      .order('submitted_at', { ascending: false });
+
+    if (formsData) setForms(formsData as FormSubmission[]);
+
+    const { data: rolesData } = await supabase
+      .from('user_roles')
+      .select('*');
+
+    if (rolesData) setUserRoles(rolesData as UserRole[]);
+    setLoading(false);
   }, []);
 
-  const checkAuth = () => {
-    const token = localStorage.getItem('adminToken');
-    const user = localStorage.getItem('adminUser');
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        navigate('/adminpanel');
+        return;
+      }
+      setCurrentUserId(user.id);
+      setCurrentUserEmail(user.email || '');
 
-    if (!token || !user) {
-      navigate('/adminpanel');
-      return;
-    }
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('role, is_primary')
+        .eq('user_id', user.id)
+        .eq('role', 'admin')
+        .maybeSingle();
 
-    try {
-      setCurrentUser(JSON.parse(user));
-    } catch (error) {
-      navigate('/adminpanel');
-    }
-  };
-
-  const loadData = async () => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const [formsRes, usersRes] = await Promise.all([
-        fetchApi('/api/forms', {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        fetchApi('/api/users', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-      ]);
-
-      if (formsRes.ok) {
-        const formsData = await formsRes.json();
-        setForms(formsData);
+      if (!roles) {
+        navigate('/adminpanel');
+        return;
       }
 
-      if (usersRes.ok) {
-        const usersData = await usersRes.json();
-        setUsers(usersData);
-      }
-    } catch (error) {
-      console.error('Error loading data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      setIsPrimary(roles.is_primary || false);
+      loadData();
+    };
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
+    checkAuth();
+  }, [navigate, loadData]);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate('/adminpanel');
   };
 
   const updateFormStatus = async (formId: string, status: string) => {
-    try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`/api/forms/${formId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ status })
-      });
+    const { error } = await supabase
+      .from('form_submissions')
+      .update({ status })
+      .eq('id', formId);
 
-      if (response.ok) {
-        setForms(forms.map(form =>
-          form.id === formId ? { ...form, status } : form
-        ));
-      }
-    } catch (error) {
-      console.error('Error updating form status:', error);
+    if (!error) {
+      setForms(forms.map(f => f.id === formId ? { ...f, status } : f));
     }
   };
 
   const deleteForm = async (formId: string) => {
-    if (!confirm('Are you sure you want to delete this form submission?')) return;
+    if (!confirm('Delete this submission?')) return;
+    const { error } = await supabase
+      .from('form_submissions')
+      .delete()
+      .eq('id', formId);
+
+    if (!error) setForms(forms.filter(f => f.id !== formId));
+  };
+
+  const exportCSV = (type: 'contact' | 'demo' | 'all') => {
+    const filtered = type === 'all' ? forms : forms.filter(f => f.type === type);
+    if (filtered.length === 0) return;
+
+    const headers = ['Type', 'Name', 'Email', 'Phone', 'Subject', 'Interest', 'Message', 'Status', 'Submitted At'];
+    const rows = filtered.map(f => [
+      f.type, f.name || '', f.email || '', f.phone || '',
+      f.subject || '', f.interest || '', (f.message || '').replace(/"/g, '""'),
+      f.status, new Date(f.submitted_at).toLocaleString()
+    ]);
+
+    const csv = [headers.join(','), ...rows.map(r => r.map(v => `"${v}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${type}-submissions-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const addAdminUser = async () => {
+    if (!newEmail || !newPassword) return;
+    setAddingUser(true);
 
     try {
-      const token = localStorage.getItem('adminToken');
-      const response = await fetch(`/api/forms/${formId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
+      // Use edge function to create user (since signup is disabled)
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await supabase.functions.invoke('create-admin-user', {
+        body: { email: newEmail, password: newPassword },
+        headers: { Authorization: `Bearer ${session?.access_token}` }
       });
 
-      if (response.ok) {
-        setForms(forms.filter(form => form.id !== formId));
+      if (res.error) {
+        alert(res.error.message || 'Failed to create user');
+      } else {
+        setNewEmail('');
+        setNewPassword('');
+        setShowAddUser(false);
+        loadData();
       }
-    } catch (error) {
-      console.error('Error deleting form:', error);
+    } catch {
+      alert('Failed to create user');
+    } finally {
+      setAddingUser(false);
     }
   };
 
+  const deleteAdminUser = async (userId: string) => {
+    if (!confirm('Remove this admin user?')) return;
+
+    const res = await supabase.functions.invoke('delete-admin-user', {
+      body: { user_id: userId }
+    });
+
+    if (!res.error) {
+      loadData();
+    } else {
+      alert('Failed to delete user');
+    }
+  };
+
+  const changePassword = async () => {
+    setPassMsg('');
+    if (newPass !== confirmPass) {
+      setPassMsg('Passwords do not match');
+      return;
+    }
+    if (newPass.length < 8) {
+      setPassMsg('Password must be at least 8 characters');
+      return;
+    }
+
+    const { error } = await supabase.auth.updateUser({ password: newPass });
+    if (error) {
+      setPassMsg(error.message);
+    } else {
+      setPassMsg('Password updated successfully!');
+      setCurrentPassword('');
+      setNewPass('');
+      setConfirmPass('');
+    }
+  };
+
+  const filteredForms = formFilter === 'all' ? forms : forms.filter(f => f.type === formFilter);
   const unreadForms = forms.filter(f => f.status === 'unread').length;
-  const totalForms = forms.length;
+  const contactCount = forms.filter(f => f.type === 'contact').length;
+  const demoCount = forms.filter(f => f.type === 'demo').length;
 
   if (loading) {
     return (
@@ -151,198 +222,136 @@ const AdminDashboard = () => {
     );
   }
 
+  const sidebarItems = [
+    { id: 'overview', icon: BarChart3, label: 'Overview' },
+    { id: 'forms', icon: FileText, label: 'Submissions', badge: unreadForms },
+    { id: 'users', icon: Users, label: 'User Management' },
+    { id: 'settings', icon: Settings, label: 'Settings' },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="bg-card border-b border-border px-4 py-4 lg:px-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-muted"
-            >
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="lg:hidden p-2 rounded-lg hover:bg-muted">
               <Menu className="w-5 h-5" />
             </button>
             <h1 className="text-xl font-bold text-foreground">Zaderi Admin Panel</h1>
           </div>
-
           <div className="flex items-center gap-4">
-            <span className="text-sm text-muted-foreground">
-              Welcome, {currentUser?.username}
-            </span>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm"
-            >
-              <LogOut className="w-4 h-4" />
-              Logout
+            <span className="text-sm text-muted-foreground hidden sm:block">{currentUserEmail}</span>
+            <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-muted text-sm">
+              <LogOut className="w-4 h-4" /> Logout
             </button>
           </div>
         </div>
       </header>
 
       <div className="flex">
-        {/* Sidebar */}
         <aside className={`fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 transition-transform duration-200 ease-in-out pt-16 lg:pt-0`}>
           <div className="p-4">
             <nav className="space-y-2">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                  activeTab === 'overview' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
-              >
-                <BarChart3 className="w-5 h-5" />
-                Overview
-              </button>
-
-              <button
-                onClick={() => setActiveTab('forms')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                  activeTab === 'forms' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
-              >
-                <FileText className="w-5 h-5" />
-                Form Submissions
-                {unreadForms > 0 && (
-                  <span className="ml-auto bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-full">
-                    {unreadForms}
-                  </span>
-                )}
-              </button>
-
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                  activeTab === 'users' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
-              >
-                <Users className="w-5 h-5" />
-                User Management
-              </button>
-
-              <button
-                onClick={() => setActiveTab('content')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                  activeTab === 'content' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
-              >
-                <Edit className="w-5 h-5" />
-                Content Management
-              </button>
-
-              <button
-                onClick={() => setActiveTab('settings')}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                  activeTab === 'settings' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'
-                }`}
-              >
-                <Settings className="w-5 h-5" />
-                Settings
-              </button>
+              {sidebarItems.map(item => (
+                <button
+                  key={item.id}
+                  onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${activeTab === item.id ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                >
+                  <item.icon className="w-5 h-5" />
+                  {item.label}
+                  {item.badge && item.badge > 0 && (
+                    <span className="ml-auto bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded-full">{item.badge}</span>
+                  )}
+                </button>
+              ))}
             </nav>
           </div>
         </aside>
 
-        {/* Main Content */}
         <main className="flex-1 p-6">
+          {/* OVERVIEW */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-foreground">Dashboard Overview</h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="glass-card-solid rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <FileText className="w-8 h-8 text-electric" />
-                    <h3 className="text-lg font-semibold text-foreground">Form Submissions</h3>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[
+                  { label: 'Total Submissions', value: forms.length, icon: FileText, sub: `${unreadForms} unread` },
+                  { label: 'Contact Forms', value: contactCount, icon: Mail, sub: 'Contact inquiries' },
+                  { label: 'Demo Requests', value: demoCount, icon: Calendar, sub: 'Demo bookings' },
+                  { label: 'Admin Users', value: userRoles.length, icon: Users, sub: 'Active admins' },
+                ].map((card, i) => (
+                  <div key={i} className="glass-card-solid rounded-xl p-6">
+                    <div className="flex items-center gap-3 mb-4">
+                      <card.icon className="w-8 h-8 text-electric" />
+                      <h3 className="text-sm font-semibold text-muted-foreground">{card.label}</h3>
+                    </div>
+                    <p className="text-3xl font-bold text-foreground">{card.value}</p>
+                    <p className="text-sm text-muted-foreground">{card.sub}</p>
                   </div>
-                  <p className="text-3xl font-bold text-foreground">{totalForms}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {unreadForms} unread
-                  </p>
-                </div>
-
-                <div className="glass-card-solid rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Users className="w-8 h-8 text-electric" />
-                    <h3 className="text-lg font-semibold text-foreground">Admin Users</h3>
-                  </div>
-                  <p className="text-3xl font-bold text-foreground">{users.length}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Active administrators
-                  </p>
-                </div>
-
-                <div className="glass-card-solid rounded-xl p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <BarChart3 className="w-8 h-8 text-electric" />
-                    <h3 className="text-lg font-semibold text-foreground">System Status</h3>
-                  </div>
-                  <p className="text-3xl font-bold text-green-500">Online</p>
-                  <p className="text-sm text-muted-foreground">
-                    All systems operational
-                  </p>
-                </div>
+                ))}
               </div>
 
               <div className="glass-card-solid rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Recent Form Submissions</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-4">Recent Submissions</h3>
                 <div className="space-y-3">
-                  {forms.slice(0, 5).map((form) => (
+                  {forms.slice(0, 5).map(form => (
                     <div key={form.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <div className="flex items-center gap-3">
-                        <div className={`w-2 h-2 rounded-full ${form.status === 'unread' ? 'bg-electric' : 'bg-muted-foreground'}`}></div>
+                        <div className={`w-2 h-2 rounded-full ${form.status === 'unread' ? 'bg-electric' : 'bg-muted-foreground'}`} />
                         <div>
-                          <p className="font-medium text-foreground">
-                            {form.type === 'demo' ? 'Demo Request' : 'Contact Form'}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(form.submittedAt).toLocaleDateString()}
-                          </p>
+                          <p className="font-medium text-foreground">{form.type === 'demo' ? 'Demo Request' : 'Contact Form'} {form.name && `- ${form.name}`}</p>
+                          <p className="text-sm text-muted-foreground">{new Date(form.submitted_at).toLocaleDateString()}</p>
                         </div>
                       </div>
-                      <button
-                        onClick={() => setActiveTab('forms')}
-                        className="text-electric hover:text-electric/80 text-sm"
-                      >
-                        View
-                      </button>
+                      <button onClick={() => setActiveTab('forms')} className="text-electric hover:text-electric/80 text-sm">View</button>
                     </div>
                   ))}
-                  {forms.length === 0 && (
-                    <p className="text-muted-foreground text-center py-4">No form submissions yet</p>
-                  )}
+                  {forms.length === 0 && <p className="text-muted-foreground text-center py-4">No submissions yet</p>}
                 </div>
               </div>
             </div>
           )}
 
+          {/* FORMS */}
           {activeTab === 'forms' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <h2 className="text-2xl font-bold text-foreground">Form Submissions</h2>
-                <span className="text-sm text-muted-foreground">
-                  {totalForms} total • {unreadForms} unread
-                </span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="flex rounded-lg border border-border overflow-hidden">
+                    {(['all', 'contact', 'demo'] as const).map(f => (
+                      <button
+                        key={f}
+                        onClick={() => setFormFilter(f)}
+                        className={`px-3 py-1.5 text-sm capitalize ${formFilter === f ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                      >
+                        {f} {f === 'all' ? `(${forms.length})` : f === 'contact' ? `(${contactCount})` : `(${demoCount})`}
+                      </button>
+                    ))}
+                  </div>
+                  <button onClick={() => exportCSV(formFilter)} className="flex items-center gap-2 px-3 py-1.5 text-sm border border-border rounded-lg hover:bg-muted">
+                    <Download className="w-4 h-4" /> Export CSV
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4">
-                {forms.map((form) => (
+                {filteredForms.map(form => (
                   <div key={form.id} className="glass-card-solid rounded-xl p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${form.status === 'unread' ? 'bg-electric' : 'bg-muted-foreground'}`}></div>
+                        <div className={`w-3 h-3 rounded-full ${form.status === 'unread' ? 'bg-electric' : form.status === 'responded' ? 'bg-green-500' : 'bg-muted-foreground'}`} />
                         <div>
                           <h3 className="font-semibold text-foreground">
                             {form.type === 'demo' ? 'Demo Request' : 'Contact Form'}
                           </h3>
                           <p className="text-sm text-muted-foreground flex items-center gap-2">
                             <Calendar className="w-4 h-4" />
-                            {new Date(form.submittedAt).toLocaleString()}
+                            {new Date(form.submitted_at).toLocaleString()}
                           </p>
                         </div>
                       </div>
-
                       <div className="flex items-center gap-2">
                         <select
                           value={form.status}
@@ -353,104 +362,152 @@ const AdminDashboard = () => {
                           <option value="read">Read</option>
                           <option value="responded">Responded</option>
                         </select>
-                        <button
-                          onClick={() => deleteForm(form.id)}
-                          className="p-1 text-destructive hover:bg-destructive/10 rounded"
-                        >
+                        <button onClick={() => deleteForm(form.id)} className="p-1 text-destructive hover:bg-destructive/10 rounded">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {form.data.name && (
+                      {form.name && (
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Name:</span>
-                          <span className="text-sm font-medium text-foreground">{form.data.name}</span>
+                          <span className="text-sm font-medium text-foreground">{form.name}</span>
                         </div>
                       )}
-
-                      {form.data.email && (
+                      {form.email && (
                         <div className="flex items-center gap-2">
                           <Mail className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Email:</span>
-                          <span className="text-sm font-medium text-foreground">{form.data.email}</span>
+                          <span className="text-sm font-medium text-foreground">{form.email}</span>
                         </div>
                       )}
-
-                      {form.data.phone && (
+                      {form.phone && (
                         <div className="flex items-center gap-2">
                           <Phone className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Phone:</span>
-                          <span className="text-sm font-medium text-foreground">{form.data.phone}</span>
+                          <span className="text-sm font-medium text-foreground">{form.phone}</span>
                         </div>
                       )}
-
-                      {form.data.subject && (
+                      {form.subject && (
                         <div className="flex items-center gap-2">
                           <FileText className="w-4 h-4 text-muted-foreground" />
                           <span className="text-sm text-muted-foreground">Subject:</span>
-                          <span className="text-sm font-medium text-foreground">{form.data.subject}</span>
+                          <span className="text-sm font-medium text-foreground">{form.subject}</span>
+                        </div>
+                      )}
+                      {form.interest && (
+                        <div className="flex items-center gap-2">
+                          <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-muted-foreground">Interest:</span>
+                          <span className="text-sm font-medium text-foreground">{form.interest}</span>
                         </div>
                       )}
                     </div>
 
-                    {form.data.message && (
+                    {form.message && (
                       <div className="mt-4">
                         <p className="text-sm text-muted-foreground mb-2">Message:</p>
                         <div className="bg-muted/50 rounded-lg p-3">
-                          <p className="text-sm text-foreground whitespace-pre-wrap">{form.data.message}</p>
+                          <p className="text-sm text-foreground whitespace-pre-wrap">{form.message}</p>
                         </div>
                       </div>
                     )}
                   </div>
                 ))}
 
-                {forms.length === 0 && (
+                {filteredForms.length === 0 && (
                   <div className="text-center py-12">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">No form submissions yet</h3>
-                    <p className="text-muted-foreground">Form submissions will appear here when users submit the contact or demo forms.</p>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No submissions found</h3>
+                    <p className="text-muted-foreground">Submissions will appear here when users fill out forms on the website.</p>
                   </div>
                 )}
               </div>
             </div>
           )}
 
+          {/* USER MANAGEMENT */}
           {activeTab === 'users' && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-foreground">User Management</h2>
-                <button className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
-                  <UserPlus className="w-4 h-4" />
-                  Add User
+                <button
+                  onClick={() => setShowAddUser(!showAddUser)}
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  <UserPlus className="w-4 h-4" /> Add Admin
                 </button>
               </div>
+
+              {showAddUser && (
+                <div className="glass-card-solid rounded-xl p-6">
+                  <h3 className="text-lg font-semibold text-foreground mb-4">Create New Admin User</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">Email</label>
+                      <input
+                        type="email"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
+                        placeholder="user@example.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">Password</label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
+                        placeholder="Min 8 characters"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={addAdminUser}
+                    disabled={addingUser}
+                    className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    {addingUser ? 'Creating...' : 'Create Admin'}
+                  </button>
+                </div>
+              )}
 
               <div className="glass-card-solid rounded-xl overflow-hidden">
                 <table className="w-full">
                   <thead className="bg-muted/50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Username</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">User ID</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Role</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {users.map((user) => (
-                      <tr key={user.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">{user.username}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground capitalize">{user.role}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          {new Date(user.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                          <button className="text-electric hover:text-electric/80 mr-3">Edit</button>
-                          {user.username !== 'admin' && (
-                            <button className="text-destructive hover:text-destructive/80">Delete</button>
+                    {userRoles.map(ur => (
+                      <tr key={ur.id}>
+                        <td className="px-6 py-4 text-sm font-medium text-foreground font-mono">{ur.user_id.slice(0, 8)}...</td>
+                        <td className="px-6 py-4 text-sm text-muted-foreground capitalize">{ur.role}</td>
+                        <td className="px-6 py-4 text-sm">
+                          {ur.is_primary ? (
+                            <span className="bg-electric/20 text-electric px-2 py-1 rounded text-xs font-medium">Primary</span>
+                          ) : (
+                            <span className="bg-muted px-2 py-1 rounded text-xs">Secondary</span>
                           )}
+                        </td>
+                        <td className="px-6 py-4 text-sm">
+                          {!ur.is_primary && ur.user_id !== currentUserId && (
+                            <button
+                              onClick={() => deleteAdminUser(ur.user_id)}
+                              className="text-destructive hover:text-destructive/80"
+                            >
+                              Remove
+                            </button>
+                          )}
+                          {ur.is_primary && <span className="text-muted-foreground text-xs">Protected</span>}
                         </td>
                       </tr>
                     ))}
@@ -460,97 +517,42 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {activeTab === 'content' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-foreground">Content Management</h2>
-
-              <div className="glass-card-solid rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Hero Section</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Title</label>
-                    <input
-                      type="text"
-                      className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all"
-                      placeholder="Enter hero title"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Subtitle</label>
-                    <textarea
-                      rows={3}
-                      className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all resize-y"
-                      placeholder="Enter hero subtitle"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="glass-card-solid rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">About Section</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Title</label>
-                    <input
-                      type="text"
-                      className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all"
-                      placeholder="Enter about title"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Description</label>
-                    <textarea
-                      rows={4}
-                      className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all resize-y"
-                      placeholder="Enter about description"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end">
-                <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
-                  Save Changes
-                </button>
-              </div>
-            </div>
-          )}
-
+          {/* SETTINGS */}
           {activeTab === 'settings' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-foreground">Settings</h2>
-
               <div className="glass-card-solid rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">Account Settings</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">Current Password</label>
-                    <input
-                      type="password"
-                      className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all"
-                      placeholder="Enter current password"
-                    />
+                <h3 className="text-lg font-semibold text-foreground mb-4">Change Password</h3>
+                {passMsg && (
+                  <div className={`mb-4 px-4 py-3 rounded-lg text-sm ${passMsg.includes('success') ? 'bg-green-500/10 text-green-500' : 'bg-destructive/10 text-destructive'}`}>
+                    {passMsg}
                   </div>
+                )}
+                <div className="space-y-4 max-w-md">
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">New Password</label>
                     <input
                       type="password"
+                      value={newPass}
+                      onChange={(e) => setNewPass(e.target.value)}
                       className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all"
-                      placeholder="Enter new password"
+                      placeholder="New password"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">Confirm New Password</label>
                     <input
                       type="password"
+                      value={confirmPass}
+                      onChange={(e) => setConfirmPass(e.target.value)}
                       className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all"
-                      placeholder="Confirm new password"
+                      placeholder="Confirm password"
                     />
                   </div>
-                </div>
-
-                <div className="flex justify-end mt-6">
-                  <button className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium">
+                  <button
+                    onClick={changePassword}
+                    className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-medium"
+                  >
                     Update Password
                   </button>
                 </div>
@@ -560,12 +562,8 @@ const AdminDashboard = () => {
         </main>
       </div>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
     </div>
   );

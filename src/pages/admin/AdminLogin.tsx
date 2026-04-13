@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { fetchApi } from '@/lib/api';
+import { supabase } from '@/integrations/supabase/client';
 
 const AdminLogin = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,21 +15,34 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await fetchApi('/api/auth/login', {
-        method: 'POST',
-        body: JSON.stringify({ username, password }),
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('adminToken', data.token);
-        localStorage.setItem('adminUser', JSON.stringify(data.user));
-        navigate('/adminpanel/dashboard');
-      } else {
-        setError(data.message || 'Login failed');
+      if (authError) {
+        setError(authError.message);
+        return;
       }
-    } catch (error) {
+
+      if (data.user) {
+        // Check if user has admin role
+        const { data: roles, error: roleError } = await supabase
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
+
+        if (roleError || !roles) {
+          await supabase.auth.signOut();
+          setError('Access denied. Admin privileges required.');
+          return;
+        }
+
+        navigate('/adminpanel/dashboard');
+      }
+    } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
@@ -54,14 +67,14 @@ const AdminLogin = () => {
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Username
+                Email
               </label>
               <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground focus:outline-none focus:border-electric transition-all"
-                placeholder="Enter username"
+                placeholder="Enter admin email"
                 required
               />
             </div>
@@ -88,12 +101,6 @@ const AdminLogin = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-xs text-muted-foreground">
-              Default credentials: admin / hOst@2026
-            </p>
-          </div>
         </div>
       </div>
     </div>

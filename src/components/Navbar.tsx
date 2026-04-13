@@ -36,12 +36,12 @@ const Navbar = () => {
           }`}
           style={{
             background: scrolled
-              ? "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 18%, hsla(213,60%,35%,0.9) 100%)"
-              : "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 18%, hsla(213,60%,30%,0.8) 100%)"
+              ? "hsla(213,60%,35%,0.95)"
+              : "hsla(213,60%,30%,0.85)"
           }}
         >
           <a href="#home" className="flex items-center gap-2 no-underline">
-            <img src={logoWhite} alt="Zaderi Technologies" className="h-16 w-auto hover:opacity-80 transition-opacity" />
+            <img src={logoWhite} alt="Zaderi Technologies" className="h-16 w-auto rounded-lg" style={{ boxShadow: "0 0 20px 8px rgba(255,255,255,0.4)" }} />
           </a>
 
           <div className="hidden lg:flex items-center gap-7">

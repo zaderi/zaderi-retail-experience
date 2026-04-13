@@ -21,7 +21,16 @@ try {
       }
     });
   } else {
-    console.warn('Supabase is not configured. Forms will not save data.');
+    const missingVars = [
+      !SUPABASE_URL ? 'VITE_SUPABASE_URL' : null,
+      !SUPABASE_PUBLISHABLE_KEY ? 'VITE_SUPABASE_PUBLISHABLE_KEY' : null,
+    ]
+      .filter(Boolean)
+      .join(', ');
+
+    console.warn(
+      `Supabase is not configured. Missing env vars: ${missingVars || 'invalid SUPABASE_URL'}. Forms will not save data.`
+    );
   }
 } catch (error) {
   console.error('Failed to initialize Supabase:', error);

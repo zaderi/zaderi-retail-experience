@@ -38,8 +38,10 @@ https://zaderi-api-server.onrender.com
 1. Update `.env.production` file:
    ```env
    VITE_API_URL=https://zaderi-api-server.onrender.com
+   VITE_SUPABASE_URL=https://pppmrztsffgqvuvxife.supabase.co
+   VITE_SUPABASE_PUBLISHABLE_KEY=<your-supabase-publishable-key>
    ```
-   (Replace the domain with your actual Render.com backend URL)
+   (Replace the domain and key with your actual Render.com backend URL and Supabase key)
 
 2. Rebuild the frontend:
    ```bash

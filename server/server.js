@@ -5,6 +5,7 @@ const fs = require('fs');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const multer = require('multer');
+const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const app = express();
@@ -15,7 +16,13 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// Data storage (in production, use a proper database)
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+);
+
+// Data storage (migrated to Supabase for persistence)
 const DATA_DIR = path.join(__dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR);
@@ -25,7 +32,7 @@ const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const FORMS_FILE = path.join(DATA_DIR, 'forms.json');
 const CONTENT_FILE = path.join(DATA_DIR, 'content.json');
 
-// Initialize data files if they don't exist
+// Initialize data files if they don't exist (fallback for local development)
 if (!fs.existsSync(USERS_FILE)) {
   const defaultUsers = [{
     id: '1',
@@ -73,6 +80,50 @@ const writeData = (filePath, data) => {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 };
 
+// Supabase helper functions
+const ensureTablesExist = async () => {
+  try {
+    // Create users table if it doesn't exist
+    const { error: usersError } = await supabase.rpc('create_users_table_if_not_exists');
+    if (usersError && !usersError.message.includes('already exists')) {
+      console.log('Users table creation attempted (may already exist):', usersError.message);
+    }
+
+    // Create forms table if it doesn't exist
+    const { error: formsError } = await supabase.rpc('create_forms_table_if_not_exists');
+    if (formsError && !formsError.message.includes('already exists')) {
+      console.log('Forms table creation attempted (may already exist):', formsError.message);
+    }
+
+    // Ensure default admin user exists
+    const { data: existingUsers } = await supabase
+      .from('users')
+      .select('*')
+      .limit(1);
+
+    if (!existingUsers || existingUsers.length === 0) {
+      const hashedPassword = bcrypt.hashSync('hOst@2026', 10);
+      const { error } = await supabase
+        .from('users')
+        .insert([{
+          id: '1',
+          username: 'admin',
+          password: hashedPassword,
+          role: 'admin',
+          created_at: new Date().toISOString()
+        }]);
+
+      if (error) {
+        console.error('Error creating default admin user:', error);
+      } else {
+        console.log('Default admin user created');
+      }
+    }
+  } catch (error) {
+    console.error('Error ensuring tables exist:', error);
+  }
+};
+
 // Authentication middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -97,10 +148,14 @@ const authenticateToken = (req, res, next) => {
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    const users = readData(USERS_FILE);
-    const user = users.find(u => u.username === username);
 
-    if (!user || !bcrypt.compareSync(password, user.password)) {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .single();
+
+    if (error || !user || !bcrypt.compareSync(password, user.password)) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
@@ -119,192 +174,302 @@ app.post('/api/auth/login', async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
 // Get current user
-app.get('/api/auth/me', authenticateToken, (req, res) => {
-  const users = readData(USERS_FILE);
-  const user = users.find(u => u.id === req.user.id);
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
+app.get('/api/auth/me', authenticateToken, async (req, res) => {
+  try {
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', req.user.id)
+      .single();
+
+    if (error || !user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      createdAt: user.created_at
+    });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-  res.json({
-    id: user.id,
-    username: user.username,
-    role: user.role,
-    createdAt: user.createdAt
-  });
 });
 
 // Get all users (admin only)
-app.get('/api/users', authenticateToken, (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
+app.get('/api/users', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('*')
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error('Get users error:', error);
+      return res.status(500).json({ message: 'Failed to fetch users' });
+    }
+
+    res.json(users.map(u => ({
+      user_id: u.id,
+      username: u.username,
+      role: u.role,
+      createdAt: u.created_at,
+      is_primary: u.id === '1'
+    })));
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-  const users = readData(USERS_FILE);
-  res.json(users.map(u => ({
-    user_id: u.id,
-    username: u.username,
-    role: u.role,
-    createdAt: u.createdAt,
-    is_primary: u.id === '1'
-  })));
 });
 
 // Create user (admin only)
 app.post('/api/users', authenticateToken, async (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
-
   try {
-    const { username, password, role } = req.body;
-    const users = readData(USERS_FILE);
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
 
-    if (users.find(u => u.username === username)) {
+    const { username, password, role } = req.body;
+
+    // Check if username already exists
+    const { data: existingUser } = await supabase
+      .from('users')
+      .select('username')
+      .eq('username', username)
+      .single();
+
+    if (existingUser) {
       return res.status(400).json({ message: 'Username already exists' });
     }
 
+    const hashedPassword = bcrypt.hashSync(password, 10);
     const newUser = {
       id: Date.now().toString(),
       username,
-      password: bcrypt.hashSync(password, 10),
-      role: role || 'user',
-      createdAt: new Date().toISOString()
+      password: hashedPassword,
+      role: role || 'admin',
+      created_at: new Date().toISOString()
     };
 
-    users.push(newUser);
-    writeData(USERS_FILE, users);
+    const { data, error } = await supabase
+      .from('users')
+      .insert([newUser])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Create user error:', error);
+      return res.status(500).json({ message: 'Failed to create user' });
+    }
 
     res.status(201).json({
-      id: newUser.id,
-      username: newUser.username,
-      role: newUser.role,
-      createdAt: newUser.createdAt
+      id: data.id,
+      username: data.username,
+      role: data.role,
+      createdAt: data.created_at
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Create user error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
 // Update user (admin only)
 app.put('/api/users/:id', authenticateToken, async (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
-
   try {
-    const { id } = req.params;
-    const { username, password, role } = req.body;
-    const users = readData(USERS_FILE);
-    const userIndex = users.findIndex(u => u.id === id);
-
-    if (userIndex === -1) {
-      return res.status(404).json({ message: 'User not found' });
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
     }
 
-    if (username && username !== users[userIndex].username) {
-      if (users.find(u => u.username === username && u.id !== id)) {
+    const { id } = req.params;
+    const { username, password, role } = req.body;
+
+    const updateData = {};
+    if (username) {
+      // Check if username already exists
+      const { data: existingUser } = await supabase
+        .from('users')
+        .select('username')
+        .eq('username', username)
+        .neq('id', id)
+        .single();
+
+      if (existingUser) {
         return res.status(400).json({ message: 'Username already exists' });
       }
-      users[userIndex].username = username;
+      updateData.username = username;
     }
 
     if (password) {
-      users[userIndex].password = bcrypt.hashSync(password, 10);
+      updateData.password = bcrypt.hashSync(password, 10);
     }
 
     if (role) {
-      users[userIndex].role = role;
+      updateData.role = role;
     }
 
-    writeData(USERS_FILE, users);
+    const { data, error } = await supabase
+      .from('users')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Update user error:', error);
+      return res.status(500).json({ message: 'Failed to update user' });
+    }
+
+    if (!data) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     res.json({
-      id: users[userIndex].id,
-      username: users[userIndex].username,
-      role: users[userIndex].role,
-      createdAt: users[userIndex].createdAt
+      id: data.id,
+      username: data.username,
+      role: data.role,
+      createdAt: data.created_at
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Update user error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
 // Delete user (admin only)
-app.delete('/api/users/:id', authenticateToken, (req, res) => {
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
+app.delete('/api/users/:id', authenticateToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+
+    const { id } = req.params;
+
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Delete user error:', error);
+      return res.status(500).json({ message: 'Failed to delete user' });
+    }
+
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  const { id } = req.params;
-  const users = readData(USERS_FILE);
-  const filteredUsers = users.filter(u => u.id !== id);
-
-  if (filteredUsers.length === users.length) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  writeData(USERS_FILE, filteredUsers);
-  res.json({ message: 'User deleted successfully' });
 });
 
 // Get forms
-app.get('/api/forms', authenticateToken, (req, res) => {
-  const forms = readData(FORMS_FILE);
-  res.json(forms);
+app.get('/api/forms', authenticateToken, async (req, res) => {
+  try {
+    const { data: forms, error } = await supabase
+      .from('forms')
+      .select('*')
+      .order('submitted_at', { ascending: false });
+
+    if (error) {
+      console.error('Get forms error:', error);
+      return res.status(500).json({ message: 'Failed to fetch forms' });
+    }
+
+    res.json(forms);
+  } catch (error) {
+    console.error('Get forms error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 });
 
 // Save form submission (public endpoint for frontend)
-app.post('/api/forms', (req, res) => {
+app.post('/api/forms', async (req, res) => {
   try {
-    const forms = readData(FORMS_FILE);
     const newForm = {
       id: Date.now().toString(),
       type: req.body.type || 'contact',
       data: req.body,
-      submittedAt: new Date().toISOString(),
+      submitted_at: new Date().toISOString(),
       status: 'unread'
     };
 
-    forms.push(newForm);
-    writeData(FORMS_FILE, forms);
+    const { error } = await supabase
+      .from('forms')
+      .insert([newForm]);
+
+    if (error) {
+      console.error('Save form error:', error);
+      return res.status(500).json({ message: 'Failed to save form submission' });
+    }
 
     res.status(201).json({ message: 'Form submitted successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Save form error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
 // Update form status
-app.put('/api/forms/:id', authenticateToken, (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-  const forms = readData(FORMS_FILE);
-  const formIndex = forms.findIndex(f => f.id === id);
+app.put('/api/forms/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
 
-  if (formIndex === -1) {
-    return res.status(404).json({ message: 'Form not found' });
+    const { data, error } = await supabase
+      .from('forms')
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Update form error:', error);
+      return res.status(500).json({ message: 'Failed to update form' });
+    }
+
+    if (!data) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
+
+    res.json(data);
+  } catch (error) {
+    console.error('Update form error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  forms[formIndex].status = status;
-  writeData(FORMS_FILE, forms);
-  res.json(forms[formIndex]);
 });
 
 // Delete form
-app.delete('/api/forms/:id', authenticateToken, (req, res) => {
-  const { id } = req.params;
-  const forms = readData(FORMS_FILE);
-  const filteredForms = forms.filter(f => f.id !== id);
+app.delete('/api/forms/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
 
-  if (filteredForms.length === forms.length) {
-    return res.status(404).json({ message: 'Form not found' });
+    const { error } = await supabase
+      .from('forms')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Delete form error:', error);
+      return res.status(500).json({ message: 'Failed to delete form' });
+    }
+
+    res.json({ message: 'Form deleted successfully' });
+  } catch (error) {
+    console.error('Delete form error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  writeData(FORMS_FILE, filteredForms);
-  res.json({ message: 'Form deleted successfully' });
 });
 
 // Get content
@@ -364,6 +529,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
+  await ensureTablesExist();
 });

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { FormEvent, useState } from "react";
-import { fetchApi } from "../lib/api";
+import { supabase } from "@/integrations/supabase/client";
 
 const ContactSection = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -12,35 +12,38 @@ const ContactSection = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    try {
-      const response = await fetchApi('/api/forms', {
-        method: 'POST',
-        body: JSON.stringify({
-          type: 'contact',
-          name,
-          email,
-          subject,
-          message,
-        }),
+    // Basic validation
+    if (!name.trim() || !email.trim() || !message.trim()) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    if (name.length > 100 || email.length > 255 || subject.length > 200 || message.length > 2000) {
+      alert('One or more fields exceed the maximum length.');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('form_submissions')
+      .insert({
+        type: 'contact',
+        name: name.trim(),
+        email: email.trim(),
+        subject: subject.trim(),
+        message: message.trim(),
       });
 
-      if (!response.ok) {
-        console.error('Failed to submit contact form:', await response.text());
-        alert('Failed to submit form. Please try again.');
-        return;
-      }
-
-      setSubmitted(true);
-      setName("");
-      setEmail("");
-      setSubject("");
-      setMessage("");
-
-      setTimeout(() => setSubmitted(false), 3000);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Network error. Please try again.');
+    if (error) {
+      alert('Failed to submit form. Please try again.');
+      return;
     }
+
+    setSubmitted(true);
+    setName("");
+    setEmail("");
+    setSubject("");
+    setMessage("");
+    setTimeout(() => setSubmitted(false), 3000);
   };
 
   return (
@@ -115,9 +118,11 @@ const ContactSection = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Name</label>
+                <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Name *</label>
                 <input
                   type="text"
+                  required
+                  maxLength={100}
                   placeholder="Your name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -125,9 +130,11 @@ const ContactSection = () => {
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email</label>
+                <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email *</label>
                 <input
                   type="email"
+                  required
+                  maxLength={255}
                   placeholder="your@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -140,6 +147,7 @@ const ContactSection = () => {
               <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Subject</label>
               <input
                 type="text"
+                maxLength={200}
                 placeholder="How can we help?"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
@@ -148,8 +156,10 @@ const ContactSection = () => {
             </div>
 
             <div className="flex flex-col gap-1.5 mb-6">
-              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Message</label>
+              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Message *</label>
               <textarea
+                required
+                maxLength={2000}
                 placeholder="Tell us more..."
                 rows={4}
                 value={message}

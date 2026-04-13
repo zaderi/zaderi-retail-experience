@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { FormEvent, useState } from "react";
-import { fetchApi } from "../lib/api";
+import { supabase } from "@/integrations/supabase/client";
 
 const DemoSection = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -13,37 +13,39 @@ const DemoSection = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    try {
-      const response = await fetchApi('/api/forms', {
-        method: 'POST',
-        body: JSON.stringify({
-          type: 'demo',
-          full_name: fullName,
-          phone,
-          email,
-          interest,
-          message,
-        }),
+    if (!fullName.trim() || !phone.trim() || !email.trim() || !interest) {
+      alert('Please fill in all required fields.');
+      return;
+    }
+
+    if (fullName.length > 100 || email.length > 255 || phone.length > 30 || message.length > 2000) {
+      alert('One or more fields exceed the maximum length.');
+      return;
+    }
+
+    const { error } = await supabase
+      .from('form_submissions')
+      .insert({
+        type: 'demo',
+        name: fullName.trim(),
+        phone: phone.trim(),
+        email: email.trim(),
+        interest: interest,
+        message: message.trim() || null,
       });
 
-      if (!response.ok) {
-        console.error('Failed to submit demo request:', await response.text());
-        alert('Failed to submit form. Please try again.');
-        return;
-      }
-
-      setSubmitted(true);
-      setFullName("");
-      setPhone("");
-      setEmail("");
-      setInterest("");
-      setMessage("");
-
-      setTimeout(() => setSubmitted(false), 5000);
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Network error. Please try again.');
+    if (error) {
+      alert('Failed to submit form. Please try again.');
+      return;
     }
+
+    setSubmitted(true);
+    setFullName("");
+    setPhone("");
+    setEmail("");
+    setInterest("");
+    setMessage("");
+    setTimeout(() => setSubmitted(false), 5000);
   };
 
   return (
@@ -76,10 +78,11 @@ const DemoSection = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Full Name</label>
+              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Full Name *</label>
               <input
                 required
                 type="text"
+                maxLength={100}
                 placeholder="Your full name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
@@ -87,10 +90,11 @@ const DemoSection = () => {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Phone</label>
+              <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Phone *</label>
               <input
                 required
                 type="tel"
+                maxLength={30}
                 placeholder="+256 700 000 000"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
@@ -100,10 +104,11 @@ const DemoSection = () => {
           </div>
 
           <div className="flex flex-col gap-1.5 mb-4">
-            <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email</label>
+            <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Email *</label>
             <input
               required
               type="email"
+              maxLength={255}
               placeholder="you@business.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -112,7 +117,7 @@ const DemoSection = () => {
           </div>
 
           <div className="flex flex-col gap-1.5 mb-4">
-            <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">What are you interested in?</label>
+            <label className="text-xs text-muted-foreground font-medium uppercase tracking-wider">What are you interested in? *</label>
             <div className="relative">
               <select
                 required
@@ -137,6 +142,7 @@ const DemoSection = () => {
             <textarea
               placeholder="Tell us about your business..."
               rows={3}
+              maxLength={2000}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all resize-y"
@@ -147,8 +153,8 @@ const DemoSection = () => {
             type="submit"
             disabled={submitted}
             className={`w-full py-3.5 rounded-lg font-semibold text-[0.9rem] transition-all ${
-              submitted 
-                ? "bg-green-500/20 text-green-400 border border-green-500/50" 
+              submitted
+                ? "bg-green-500/20 text-green-400 border border-green-500/50"
                 : "gradient-primary text-foreground shadow-glow hover:shadow-[0_12px_40px_hsla(213,94%,52%,0.45)]"
             }`}
           >

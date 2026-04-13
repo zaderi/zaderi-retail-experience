@@ -83,16 +83,30 @@ const writeData = (filePath, data) => {
 // Supabase helper functions
 const ensureTablesExist = async () => {
   try {
-    // Create users table if it doesn't exist
-    const { error: usersError } = await supabase.rpc('create_users_table_if_not_exists');
-    if (usersError && !usersError.message.includes('already exists')) {
-      console.log('Users table creation attempted (may already exist):', usersError.message);
+    // Check if users table exists by trying to query it
+    const { data: usersData, error: usersError } = await supabase
+      .from('users')
+      .select('id')
+      .limit(1);
+
+    if (usersError) {
+      console.error('Users table does not exist or is not accessible:', usersError.message);
+      console.log('Please run the SQL setup script in your Supabase dashboard');
+    } else {
+      console.log('Users table is accessible');
     }
 
-    // Create forms table if it doesn't exist
-    const { error: formsError } = await supabase.rpc('create_forms_table_if_not_exists');
-    if (formsError && !formsError.message.includes('already exists')) {
-      console.log('Forms table creation attempted (may already exist):', formsError.message);
+    // Check if forms table exists by trying to query it
+    const { data: formsData, error: formsError } = await supabase
+      .from('forms')
+      .select('id')
+      .limit(1);
+
+    if (formsError) {
+      console.error('Forms table does not exist or is not accessible:', formsError.message);
+      console.log('Please run the SQL setup script in your Supabase dashboard');
+    } else {
+      console.log('Forms table is accessible');
     }
 
     // Ensure default admin user exists
@@ -118,6 +132,8 @@ const ensureTablesExist = async () => {
       } else {
         console.log('Default admin user created');
       }
+    } else {
+      console.log('Default admin user already exists');
     }
   } catch (error) {
     console.error('Error ensuring tables exist:', error);

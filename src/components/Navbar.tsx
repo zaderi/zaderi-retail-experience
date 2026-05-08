@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, ArrowRight } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import logoTransparent from "@/assets/logo-transparent.png";
 import logoWhite from "@/assets/logo-white.jpeg";
 
 const navLinks = [
-  { label: "Home", href: "#home" },
   { label: "Solutions", href: "#services" },
-  { label: "AI & Automation", href: "#ai-automation" },
-  { label: "About", href: "#about" },
+  { label: "AI", href: "#ai-automation" },
   { label: "Products", href: "#products" },
+  { label: "About", href: "#about" },
   { label: "Contact", href: "#contact" },
 ];
 
@@ -19,175 +18,100 @@ const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 12);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const isLight = theme === "light";
+  const logo = isLight ? logoTransparent : logoWhite;
+
   return (
     <>
-      {/* Dark Mode Navbar */}
-      {theme === "dark" && (
-        <nav
-          className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[5%] h-[72px] transition-all duration-300 border-b ${
-            scrolled
-              ? "backdrop-blur-xl border-foreground/[0.08] shadow-[0_1px_20px_rgba(0,0,0,0.12)]"
-              : "backdrop-blur-xl border-foreground/[0.04]"
-          }`}
-          style={{
-            background: scrolled
-              ? "hsla(213,60%,35%,0.95)"
-              : "hsla(213,60%,30%,0.85)"
-          }}
-        >
+      <nav
+        className={`fixed left-1/2 -translate-x-1/2 z-50 transition-all duration-300 ${
+          scrolled
+            ? "top-3 w-[min(96%,1100px)] rounded-full border shadow-[0_10px_40px_-15px_rgba(0,0,0,0.4)]"
+            : "top-0 w-full border-b"
+        }`}
+        style={{
+          background: scrolled
+            ? isLight
+              ? "hsla(0,0%,100%,0.85)"
+              : "hsla(222,47%,8%,0.7)"
+            : isLight
+            ? "hsla(0,0%,100%,0.7)"
+            : "hsla(222,47%,6%,0.6)",
+          backdropFilter: "blur(18px)",
+          WebkitBackdropFilter: "blur(18px)",
+          borderColor: isLight ? "hsla(222,47%,11%,0.08)" : "hsla(0,0%,100%,0.06)",
+        }}
+      >
+        <div className={`flex items-center justify-between h-[60px] ${scrolled ? "px-5" : "px-[5%]"}`}>
           <a href="#home" className="flex items-center gap-2 no-underline">
-            <img src={logoWhite} alt="Zaderi Technologies" className="h-16 w-auto rounded-lg" style={{ boxShadow: "0 0 20px 8px rgba(255,255,255,0.4)" }} />
+            <img src={logo} alt="Zaderi Technologies" className="h-9 w-auto" />
+            <span className="font-display font-bold text-foreground text-[0.95rem] hidden sm:inline">Zaderi</span>
           </a>
 
-          <div className="hidden lg:flex items-center gap-7">
-            <ul className="flex items-center gap-7 list-none">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-white/80 text-[0.82rem] font-medium hover:text-white transition-colors no-underline"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+          <div className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="relative text-foreground/70 text-[0.82rem] font-medium hover:text-foreground transition-colors no-underline px-3 py-2 rounded-md"
+              >
+                {link.label}
+              </a>
+            ))}
+          </div>
+
+          <div className="hidden lg:flex items-center gap-2">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg glass-card hover:bg-white/[0.1] transition-all"
+              className="p-2 rounded-full hover:bg-foreground/[0.06] transition-all"
               aria-label="Toggle theme"
             >
-              <Sun className="w-4 h-4 text-white" />
+              {isLight ? <Moon className="w-4 h-4 text-foreground" /> : <Sun className="w-4 h-4 text-foreground" />}
             </button>
             <a
               href="#demo"
-              className="gradient-primary text-primary-foreground px-5 py-2.5 rounded-lg text-[0.82rem] font-semibold no-underline hover:shadow-glow transition-all"
+              className="gradient-primary text-primary-foreground px-4 py-2 rounded-full text-[0.8rem] font-semibold no-underline hover:shadow-glow transition-all inline-flex items-center gap-1.5"
             >
-              Request Demo
+              Get demo
+              <ArrowRight className="w-3.5 h-3.5" />
             </a>
           </div>
 
-          <div className="lg:hidden flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-white/[0.1] transition-all"
-              aria-label="Toggle theme"
-            >
-              <Sun className="w-4 h-4 text-white" />
+          <div className="lg:hidden flex items-center gap-1">
+            <button onClick={toggleTheme} className="p-2 rounded-full" aria-label="Toggle theme">
+              {isLight ? <Moon className="w-4 h-4 text-foreground" /> : <Sun className="w-4 h-4 text-foreground" />}
             </button>
             <button
-              className="p-1 bg-transparent border-none"
+              className="p-2 bg-transparent border-none"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Menu"
             >
-              {isOpen ? <X className="text-white w-6 h-6" /> : <Menu className="text-white w-6 h-6" />}
+              {isOpen ? <X className="text-foreground w-5 h-5" /> : <Menu className="text-foreground w-5 h-5" />}
             </button>
           </div>
-        </nav>
-      )}
-
-      {/* Light Mode Navbar */}
-      {theme === "light" && (
-        <nav
-          className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-[5%] h-[72px] transition-all duration-300 border-b ${
-            scrolled
-              ? "backdrop-blur-xl border-foreground/[0.12] shadow-[0_1px_20px_rgba(0,0,0,0.08)]"
-              : "backdrop-blur-xl border-foreground/[0.08]"
-          }`}
-          style={{
-            background: scrolled
-              ? "linear-gradient(90deg, hsla(0,0%,100%,0.95) 0%, hsla(0,0%,98%,0.92) 50%, hsla(0,0%,100%,0.95) 100%)"
-              : "linear-gradient(90deg, hsla(0,0%,100%,0.85) 0%, hsla(0,0%,98%,0.82) 50%, hsla(0,0%,100%,0.85) 100%)"
-          }}
-        >
-          <a href="#home" className="flex items-center gap-2 no-underline">
-            <img src={logoTransparent} alt="Zaderi Technologies" className="h-16 w-auto" />
-          </a>
-
-          <div className="hidden lg:flex items-center gap-7">
-            <ul className="flex items-center gap-7 list-none">
-              {navLinks.map((link) => (
-                <li key={link.href}>
-                  <a
-                    href={link.href}
-                    className="text-foreground/75 text-[0.82rem] font-medium hover:text-foreground transition-colors no-underline"
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg glass-card hover:bg-foreground/[0.06] transition-all"
-              aria-label="Toggle theme"
-            >
-              <Moon className="w-4 h-4 text-foreground" />
-            </button>
-            <a
-              href="#demo"
-              className="gradient-primary text-primary-foreground px-5 py-2.5 rounded-lg text-[0.82rem] font-semibold no-underline hover:shadow-glow transition-all"
-            >
-              Request Demo
-            </a>
-          </div>
-
-          <div className="lg:hidden flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-foreground/[0.06] transition-all"
-              aria-label="Toggle theme"
-            >
-              <Moon className="w-4 h-4 text-foreground" />
-            </button>
-            <button
-              className="p-1 bg-transparent border-none"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Menu"
-            >
-              {isOpen ? <X className="text-foreground w-6 h-6" /> : <Menu className="text-foreground w-6 h-6" />}
-            </button>
-          </div>
-        </nav>
-      )}
-
-      {/* Dark Mode Mobile Menu */}
-      {theme === "dark" && isOpen && (
-        <div className="lg:hidden fixed top-[72px] left-0 right-0 bg-background/98 backdrop-blur-xl border-b border-foreground/[0.06] z-40 flex flex-col gap-1 p-6">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setIsOpen(false)}
-              className="text-white/80 text-base py-3 border-b border-foreground/[0.06] no-underline hover:text-white transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
-          <a
-            href="#demo"
-            onClick={() => setIsOpen(false)}
-            className="gradient-primary text-primary-foreground text-center py-3 rounded-lg mt-3 no-underline font-semibold"
-          >
-            Request Demo
-          </a>
         </div>
-      )}
+      </nav>
 
-      {/* Light Mode Mobile Menu */}
-      {theme === "light" && isOpen && (
-        <div className="lg:hidden fixed top-[72px] left-0 right-0 bg-white/98 backdrop-blur-xl border-b border-foreground/[0.12] z-40 flex flex-col gap-1 p-6">
+      {isOpen && (
+        <div
+          className="lg:hidden fixed top-[64px] left-3 right-3 rounded-2xl border z-40 flex flex-col gap-1 p-4 shadow-2xl"
+          style={{
+            background: isLight ? "hsla(0,0%,100%,0.98)" : "hsla(222,47%,8%,0.98)",
+            backdropFilter: "blur(18px)",
+            borderColor: isLight ? "hsla(222,47%,11%,0.08)" : "hsla(0,0%,100%,0.06)",
+          }}
+        >
           {navLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}
               onClick={() => setIsOpen(false)}
-              className="text-foreground/75 text-base py-3 border-b border-foreground/[0.12] no-underline hover:text-foreground transition-colors"
+              className="text-foreground/80 text-[0.95rem] py-2.5 px-3 rounded-lg hover:bg-foreground/[0.04] no-underline transition-colors"
             >
               {link.label}
             </a>
@@ -195,9 +119,9 @@ const Navbar = () => {
           <a
             href="#demo"
             onClick={() => setIsOpen(false)}
-            className="gradient-primary text-primary-foreground text-center py-3 rounded-lg mt-3 no-underline font-semibold"
+            className="gradient-primary text-primary-foreground text-center py-3 rounded-lg mt-2 no-underline font-semibold text-sm"
           >
-            Request Demo
+            Request demo
           </a>
         </div>
       )}

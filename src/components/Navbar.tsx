@@ -49,8 +49,8 @@ const Navbar = () => {
       >
         <div className={`flex items-center justify-between h-[60px] ${scrolled ? "px-5" : "px-[5%]"}`}>
           <a href="#home" className="flex items-center gap-2 no-underline">
-            <div className="w-9 h-9 rounded-full border border-foreground/20 bg-foreground/[0.05] flex items-center justify-center flex-shrink-0">
-              <img src={logo} alt="Zaderi Technologies" className="h-6 w-auto" />
+            <div className="w-10 h-10 rounded-full border border-foreground/20 bg-foreground/[0.05] flex items-center justify-center flex-shrink-0 p-1.5">
+              <img src={logo} alt="Zaderi Technologies" className="h-full w-full object-contain" />
             </div>
             <span className="font-display font-bold text-foreground text-[0.95rem] hidden sm:inline">Zaderi</span>
           </a>

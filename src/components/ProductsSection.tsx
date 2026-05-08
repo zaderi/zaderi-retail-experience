@@ -69,7 +69,7 @@ const ProductsSection = () => {
           <span className="eyebrow block mb-2.5">Our Products</span>
           <h2 className="h-section text-foreground mb-3">See it in action</h2>
           <p className="lead">
-            Intuitive solutions designed for real-world business needs — fast, reliable, and built to scale.
+            Intuitive solutions designed for real-world business needs fast, reliable, and built to scale.
           </p>
         </motion.div>
 

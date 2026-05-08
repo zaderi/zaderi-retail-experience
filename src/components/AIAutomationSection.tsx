@@ -50,7 +50,7 @@ const AIAutomationSection = () => {
               Automate. Engage. <span className="gradient-text">Scale.</span>
             </h2>
             <p className="lead mb-7">
-              From custom chatbots to lead-gen agents, we deploy intelligent automation so your business works smarter — not harder.
+              From custom chatbots to lead-gen agents, we deploy intelligent automation so your business works smarter not harder.
             </p>
             {/* Chat Preview */}
             <div className="glass-card-solid rounded-xl p-5 max-w-[400px]">

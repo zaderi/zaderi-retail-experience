@@ -55,7 +55,7 @@ const ServicesSection = () => {
             <span className="eyebrow block mb-2.5">Retail Solutions</span>
             <h2 className="h-section text-foreground mb-3">Everything your retail business needs</h2>
             <p className="lead">
-              Built for the modern Ugandan retail market — from small shops to multi-branch chains.
+              Built for the modern Ugandan retail market, from small shops to multi-branch chains.
             </p>
           </div>
           <a href="#products" className="story-link text-electric text-sm font-semibold hidden lg:inline-block">

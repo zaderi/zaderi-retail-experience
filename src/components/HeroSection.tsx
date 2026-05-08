@@ -208,7 +208,7 @@ const HeroSection = () => {
               className="flex items-center gap-6 mt-8 pt-6 border-t border-foreground/[0.06] flex-wrap"
             >
               {[
-                { val: "500+", label: "Businesses served" },
+                { val: "176+", label: "Businesses served" },
                 { val: "99.9%", label: "Uptime" },
                 { val: "24/7", label: "Support" },
               ].map((s) => (

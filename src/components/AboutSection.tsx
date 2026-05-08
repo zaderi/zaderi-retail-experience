@@ -45,7 +45,7 @@ const AboutSection = () => {
             <span className="eyebrow block mb-2.5">Who we are</span>
             <h2 className="h-section text-foreground mb-3">Technology that drives business forward</h2>
             <p className="lead mb-3.5">
-              Zaderi Technologies is a Ugandan technology company specializing in smart business systems and AI automation. Every business — from a small shop to an enterprise chain — deserves world-class tools.
+              Zaderi Technologies is a Ugandan technology company specializing in smart business systems and AI automation. Every business: from a small shop to an enterprise chain deserves world-class tools.
             </p>
             <p className="lead mb-7">
               Our team combines deep business expertise with modern engineering to deliver software that's powerful yet simple to use.

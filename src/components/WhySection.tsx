@@ -2,9 +2,9 @@ import { motion } from "framer-motion";
 
 const reasons = [
   { num: "01", title: "Rapid deployment", desc: "Live in days, not months. Fast, intuitive setup with hands-on onboarding." },
-  { num: "02", title: "Local expertise", desc: "Built for East Africa — local currency, mobile money, and regional needs baked in." },
+  { num: "02", title: "Local expertise", desc: "Built in East Africa; local currency, mobile money, and regional needs baked in." },
   { num: "03", title: "Always-on support", desc: "24/7 help via WhatsApp, phone, or in person. We're here when you need us." },
-  { num: "04", title: "Resilient by design", desc: "Keep operating even with intermittent connectivity — auto-syncs when back online." },
+  { num: "04", title: "Resilient by design", desc: "Keep operating even with intermittent connectivity, auto-syncs when back online." },
   { num: "05", title: "AI-first", desc: "Intelligent chatbots, lead-gen bots, and predictive analytics across the platform." },
   { num: "06", title: "Affordable & scalable", desc: "Enterprise features without enterprise pricing. Start small, scale as you grow." },
 ];

@@ -412,7 +412,7 @@ app.get('/api/forms', authenticateToken, async (req, res) => {
       return res.status(500).json({ message: 'Failed to fetch forms' });
     }
 
-    res.json(forms);
+    res.json(forms.map(f => ({ ...f, submittedAt: f.submitted_at })));
   } catch (error) {
     console.error('Get forms error:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -468,7 +468,7 @@ app.put('/api/forms/:id', authenticateToken, async (req, res) => {
       return res.status(404).json({ message: 'Form not found' });
     }
 
-    res.json(data);
+    res.json({ ...data, submittedAt: data.submitted_at });
   } catch (error) {
     console.error('Update form error:', error);
     res.status(500).json({ message: 'Internal server error' });

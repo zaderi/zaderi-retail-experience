@@ -547,7 +547,7 @@ const AdminDashboard = () => {
                   </thead>
                   <tbody className="divide-y divide-border">
                     {userRoles.map(ur => (
-                      <tr key={ur.id}>
+                      <tr key={(ur as any).id ?? ur.user_id}>
                         <td className="px-6 py-4 text-sm font-medium text-foreground font-mono">{ur.user_id.slice(0, 8)}...</td>
                         <td className="px-6 py-4 text-sm text-muted-foreground capitalize">{ur.role}</td>
                         <td className="px-6 py-4 text-sm">

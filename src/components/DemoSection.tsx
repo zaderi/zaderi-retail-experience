@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 const DemoSection = () => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -14,14 +15,15 @@ const DemoSection = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    setErrorMsg("");
 
     if (!fullName.trim() || !phone.trim() || !email.trim() || !interest) {
-      alert('Please fill in all required fields.');
+      setErrorMsg("Please fill in all required fields.");
       return;
     }
 
     if (fullName.length > 100 || email.length > 255 || phone.length > 30 || message.length > 2000) {
-      alert('One or more fields exceed the maximum length.');
+      setErrorMsg("One or more fields exceed the maximum length.");
       return;
     }
 
@@ -55,7 +57,7 @@ const DemoSection = () => {
 
       if (!supabase) {
         setLoading(false);
-        alert('Form submission is currently unavailable. Please try again later.');
+        setErrorMsg("Form submission is currently unavailable. Please try again later.");
         return;
       }
 
@@ -71,9 +73,9 @@ const DemoSection = () => {
         });
 
       if (error) {
-        setLoading(false);
         console.error('Supabase error:', error);
-        alert('Failed to submit form. Please try again.');
+        setLoading(false);
+        setErrorMsg("Failed to submit form. Please try again.");
         return;
       }
     }
@@ -125,7 +127,7 @@ const DemoSection = () => {
                 maxLength={100}
                 placeholder="Your full name"
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => { setFullName(e.target.value); setErrorMsg(""); }}
                 className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
               />
             </div>
@@ -137,7 +139,7 @@ const DemoSection = () => {
                 maxLength={30}
                 placeholder="+256 700 000 000"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => { setPhone(e.target.value); setErrorMsg(""); }}
                 className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
               />
             </div>
@@ -151,7 +153,7 @@ const DemoSection = () => {
               maxLength={255}
               placeholder="you@business.com"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => { setEmail(e.target.value); setErrorMsg(""); }}
               className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all"
             />
           </div>
@@ -162,7 +164,7 @@ const DemoSection = () => {
               <select
                 required
                 value={interest}
-                onChange={(e) => setInterest(e.target.value)}
+                onChange={(e) => { setInterest(e.target.value); setErrorMsg(""); }}
                 className="w-full bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric appearance-none"
               >
                 <option value="">Select...</option>
@@ -188,6 +190,12 @@ const DemoSection = () => {
               className="bg-background/60 border border-foreground/[0.06] rounded-lg px-4 py-3 text-foreground text-sm focus:outline-none focus:border-electric transition-all resize-y"
             />
           </div>
+
+          {errorMsg && (
+            <p className="text-red-400 text-sm text-center mb-3 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-2.5">
+              {errorMsg}
+            </p>
+          )}
 
           <button
             type="submit"

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const DemoSection = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -24,9 +25,15 @@ const DemoSection = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 6000);
+
       const response = await fetchApi('/api/forms', {
         method: 'POST',
+        signal: controller.signal,
         body: JSON.stringify({
           type: 'demo',
           name: fullName.trim(),
@@ -37,6 +44,8 @@ const DemoSection = () => {
         }),
       });
 
+      clearTimeout(timeout);
+
       if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
         throw new Error(errorBody?.message || 'Failed to submit form.');
@@ -45,6 +54,7 @@ const DemoSection = () => {
       console.warn('Backend submit failed, falling back to Supabase if configured.', apiError);
 
       if (!supabase) {
+        setLoading(false);
         alert('Form submission is currently unavailable. Please try again later.');
         return;
       }
@@ -61,12 +71,14 @@ const DemoSection = () => {
         });
 
       if (error) {
+        setLoading(false);
         console.error('Supabase error:', error);
         alert('Failed to submit form. Please try again.');
         return;
       }
     }
 
+    setLoading(false);
     setSubmitted(true);
     setFullName("");
     setPhone("");
@@ -179,14 +191,16 @@ const DemoSection = () => {
 
           <button
             type="submit"
-            disabled={submitted}
+            disabled={submitted || loading}
             className={`w-full py-3.5 rounded-lg font-semibold text-[0.9rem] transition-all ${
               submitted
                 ? "bg-green-500/20 text-green-400 border border-green-500/50"
+                : loading
+                ? "gradient-primary text-foreground/70 shadow-glow opacity-80 cursor-not-allowed"
                 : "gradient-primary text-foreground shadow-glow hover:shadow-[0_12px_40px_hsla(213,94%,52%,0.45)]"
             }`}
           >
-            {submitted ? "✓ Request Sent!" : "Book My Free Demo"}
+            {submitted ? "✓ Request Sent!" : loading ? "Sending..." : "Book My Free Demo"}
           </button>
         </motion.form>
       </div>

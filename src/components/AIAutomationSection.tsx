@@ -38,21 +38,20 @@ const AIAutomationSection = () => {
   return (
     <section id="ai-automation" className="relative z-10 bg-background">
       <div className="section-container section-padding">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.1fr] gap-10 lg:gap-14 items-center">
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.5 }}
           >
-            <span className="text-cyan text-xs font-semibold tracking-[0.12em] uppercase block mb-3">AI & Automation</span>
-            <h2 className="font-display font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>
+            <span className="text-cyan text-[0.7rem] font-semibold tracking-[0.16em] uppercase block mb-2.5">AI & Automation</span>
+            <h2 className="h-section text-foreground mb-3">
               Automate. Engage. <span className="gradient-text">Scale.</span>
             </h2>
-            <p className="text-soft text-[0.95rem] font-normal leading-relaxed mb-8">
-              From custom AI chatbots to intelligent lead generation systems, we deploy cutting-edge automation solutions using no-code and low-code tools so your business works smarter, not harder.
+            <p className="lead mb-7">
+              From custom chatbots to lead-gen agents, we deploy intelligent automation so your business works smarter — not harder.
             </p>
-
             {/* Chat Preview */}
             <div className="glass-card-solid rounded-xl p-5 max-w-[400px]">
               <div className="flex items-center gap-2 mb-4 pb-3 border-b border-foreground/[0.06]">

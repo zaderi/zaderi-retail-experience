@@ -57,21 +57,19 @@ const ProductsSection = () => {
   const product = products[active];
 
   return (
-    <section id="products" className="relative z-10 bg-secondary/30">
+    <section id="products" className="relative z-10 bg-background">
       <div className="section-container section-padding">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-10"
+          transition={{ duration: 0.5 }}
+          className="max-w-[560px] mb-8"
         >
-          <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-3">Our Products</span>
-          <h2 className="font-display font-extrabold tracking-tight leading-tight mb-4" style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>
-            See It in Action
-          </h2>
-          <p className="text-soft text-[0.95rem] font-normal max-w-[520px] leading-relaxed">
-            Intuitive solutions designed for real-world business needs, fast, reliable, and built to scale.
+          <span className="eyebrow block mb-2.5">Our Products</span>
+          <h2 className="h-section text-foreground mb-3">See it in action</h2>
+          <p className="lead">
+            Intuitive solutions designed for real-world business needs — fast, reliable, and built to scale.
           </p>
         </motion.div>
 

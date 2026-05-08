@@ -3,21 +3,21 @@ import { motion } from "framer-motion";
 const testimonials = [
   {
     text: "Since installing Zaderi's POS, our checkout time dropped by 60% and we finally have accurate stock counts. The team is incredibly supportive.",
-    name: "Sarah Muwanga",
-    role: "Owner, Muwanga Supermarket",
-    initials: "SM",
+    name: "Suzan Amongi",
+    role: "Owner, SMW Supermarket",
+    initials: "SA",
   },
   {
     text: "The AI chatbot handles 80% of our customer inquiries automatically. We went from missing leads to capturing them 24/7.",
-    name: "James Okoye",
+    name: "James Olimi",
     role: "Manager, City Retail Stores",
     initials: "JO",
   },
   {
     text: "We expanded from one branch to three in a year. Zaderi's system made managing all three feel like running just one.",
-    name: "Rebecca Nakato",
-    role: "CEO, Nakato Fashion & Retail",
-    initials: "RN",
+    name: "Rebecca H. Nakato",
+    role: "CEO, Nakato Fashion & Retail Center",
+    initials: "RHN",
   },
 ];
 
@@ -33,7 +33,7 @@ const TestimonialsSection = () => {
           className="max-w-[560px] mb-10"
         >
           <span className="eyebrow block mb-2.5">Client stories</span>
-          <h2 className="h-section text-foreground">Trusted by ambitious retailers</h2>
+          <h2 className="h-section text-foreground">Trusted by seasoned retailers</h2>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

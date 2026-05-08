@@ -39,7 +39,7 @@ const WhySection = () => {
             >
               <div className="flex items-baseline gap-3 mb-3">
                 <span className="font-display text-2xl font-extrabold gradient-text leading-none">{r.num}</span>
-                <span className="h-px flex-1 bg-foreground/[0.08] group-hover:bg-electric/30 transition-colors" />
+                <span className="h-px flex-1 bg-foreground/[0.08] group-hover:bg-electric/30 transition-colors hidden lg:block" />
               </div>
               <h4 className="font-display text-[0.95rem] font-bold text-foreground mb-1.5">{r.title}</h4>
               <p className="text-soft text-[0.83rem] leading-relaxed">{r.desc}</p>

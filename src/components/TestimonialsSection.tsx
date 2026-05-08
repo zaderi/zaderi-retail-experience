@@ -14,7 +14,7 @@ const testimonials = [
     initials: "JO",
   },
   {
-    text: "We expanded from one branch to three in a year. Zaderi's system made managing all three feel like running just one. Highly recommended!",
+    text: "We expanded from one branch to three in a year. Zaderi's system made managing all three feel like running just one.",
     name: "Rebecca Nakato",
     role: "CEO, Nakato Fashion & Retail",
     initials: "RN",
@@ -23,40 +23,38 @@ const testimonials = [
 
 const TestimonialsSection = () => {
   return (
-    <section className="relative z-10 bg-secondary/30">
+    <section className="relative z-10 bg-background">
       <div className="section-container section-padding">
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.5 }}
+          className="max-w-[560px] mb-10"
         >
-          <span className="text-electric text-xs font-semibold tracking-[0.12em] uppercase block mb-3">Client Stories</span>
-          <h2 className="font-display font-extrabold tracking-tight leading-tight" style={{ fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)" }}>
-            Trusted by Businesses
-          </h2>
+          <span className="eyebrow block mb-2.5">Client stories</span>
+          <h2 className="h-section text-foreground">Trusted by ambitious retailers</h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {testimonials.map((t, i) => (
             <motion.div
               key={t.name}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 18 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="glass-card-solid rounded-xl p-7 hover:-translate-y-1 transition-transform"
+              transition={{ duration: 0.45, delay: i * 0.06 }}
+              className="rounded-xl p-6 border border-foreground/[0.06] bg-card/40 card-hover"
             >
               <div className="text-[#FFB800] text-sm tracking-widest mb-3">★★★★★</div>
-              <p className="text-soft text-[0.9rem] font-normal leading-relaxed italic mb-6">"{t.text}"</p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full gradient-accent grid place-items-center font-display font-bold text-sm text-background">
+              <p className="text-foreground text-[0.9rem] leading-relaxed mb-5">"{t.text}"</p>
+              <div className="flex items-center gap-3 pt-4 border-t border-foreground/[0.06]">
+                <div className="w-9 h-9 rounded-full gradient-accent grid place-items-center font-display font-bold text-xs text-background">
                   {t.initials}
                 </div>
                 <div>
-                  <strong className="text-foreground text-sm block">{t.name}</strong>
-                  <span className="text-muted-foreground text-xs">{t.role}</span>
+                  <strong className="text-foreground text-[0.83rem] block">{t.name}</strong>
+                  <span className="text-muted-foreground text-[0.72rem]">{t.role}</span>
                 </div>
               </div>
             </motion.div>

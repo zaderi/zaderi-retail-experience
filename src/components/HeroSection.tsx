@@ -87,12 +87,12 @@ const LiveDashboard = () => {
         </div>
 
         {/* chart */}
-        <div className="bg-foreground/[0.02] border border-foreground/[0.06] rounded-lg p-3 mb-3">
+        <div className="bg-foreground/[0.02] border border-foreground/[0.06] rounded-lg p-3 mb-3 overflow-hidden">
           <div className="flex justify-between text-[0.65rem] text-muted-foreground mb-2">
             <span>Weekly Revenue</span>
             <span className="text-cyan">+18.2%</span>
           </div>
-          <div className="flex items-end gap-1.5 h-[60px]">
+          <div className="flex items-end gap-0.5 md:gap-1.5 h-[60px]">
             {[45, 60, 50, 80, 95, 65, 70].map((h, i) => (
               <motion.div
                 key={i}

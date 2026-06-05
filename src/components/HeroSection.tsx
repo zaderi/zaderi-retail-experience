@@ -78,9 +78,9 @@ const LiveDashboard = () => {
             { label: "Orders", val: tx.toString(), sub: "↑ 8 today", color: "text-cyan" },
             { label: "AI Chats", val: chats.toString(), sub: "Active", color: "text-electric" },
           ].map((c) => (
-            <div key={c.label} className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg p-2.5">
+            <div key={c.label} className="bg-foreground/[0.03] border border-foreground/[0.06] rounded-lg p-2.5 min-w-0">
               <div className="text-[0.6rem] text-muted-foreground uppercase tracking-wider mb-1">{c.label}</div>
-              <div className="font-display text-[0.95rem] font-bold text-foreground tabular-nums">{c.val}</div>
+              <div className="font-display text-[0.7rem] sm:text-[0.95rem] font-bold text-foreground tabular-nums break-words">{c.val}</div>
               <div className={`text-[0.6rem] mt-0.5 ${c.color}`}>{c.sub}</div>
             </div>
           ))}

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const ContactSection = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -24,9 +25,15 @@ const ContactSection = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 6000);
+
       const response = await fetchApi('/api/forms', {
         method: 'POST',
+        signal: controller.signal,
         body: JSON.stringify({
           type: 'contact',
           name: name.trim(),
@@ -36,6 +43,8 @@ const ContactSection = () => {
         }),
       });
 
+      clearTimeout(timeout);
+
       if (!response.ok) {
         const errorBody = await response.json().catch(() => null);
         throw new Error(errorBody?.message || 'Failed to submit form.');
@@ -44,6 +53,7 @@ const ContactSection = () => {
       console.warn('Backend submit failed, falling back to Supabase if configured.', apiError);
 
       if (!supabase) {
+        setLoading(false);
         alert('Form submission is currently unavailable. Please try again later.');
         return;
       }
@@ -60,17 +70,19 @@ const ContactSection = () => {
 
       if (error) {
         console.error('Supabase error:', error);
+        setLoading(false);
         alert('Failed to submit form. Please try again.');
         return;
       }
     }
 
+    setLoading(false);
     setSubmitted(true);
     setName("");
     setEmail("");
     setSubject("");
     setMessage("");
-    setTimeout(() => setSubmitted(false), 3000);
+    setTimeout(() => setSubmitted(false), 5000);
   };
 
   return (
@@ -197,9 +209,16 @@ const ContactSection = () => {
 
             <button
               type="submit"
-              className="w-full gradient-primary text-foreground py-3.5 rounded-lg font-semibold text-[0.9rem] shadow-glow transition-all"
+              disabled={submitted || loading}
+              className={`w-full py-3.5 rounded-lg font-semibold text-[0.9rem] transition-all ${
+                submitted
+                  ? "bg-green-500/20 text-green-400 border border-green-500/50"
+                  : loading
+                  ? "gradient-primary text-foreground/70 shadow-glow opacity-80 cursor-not-allowed"
+                  : "gradient-primary text-foreground shadow-glow hover:shadow-[0_12px_40px_hsla(213,94%,52%,0.45)]"
+              }`}
             >
-              {submitted ? "✓ Message Sent!" : "Send Message"}
+              {submitted ? "✓ Message Sent!" : loading ? "Sending..." : "Send Message"}
             </button>
           </motion.form>
         </div>

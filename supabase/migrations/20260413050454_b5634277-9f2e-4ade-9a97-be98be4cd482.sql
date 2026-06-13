@@ -1,6 +1,6 @@
 
--- Create form_submissions table
-CREATE TABLE public.form_submissions (
+-- Create forms table
+CREATE TABLE public.forms (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   type TEXT NOT NULL CHECK (type IN ('contact', 'demo')),
   name TEXT,
@@ -13,9 +13,9 @@ CREATE TABLE public.form_submissions (
   submitted_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
 );
 
-ALTER TABLE public.form_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.forms ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can submit forms" ON public.form_submissions
+CREATE POLICY "Anyone can submit forms" ON public.forms
 FOR INSERT WITH CHECK (true);
 
 -- Create app_role enum and user_roles table
@@ -62,15 +62,15 @@ AS $$
   )
 $$;
 
-CREATE POLICY "Admins can view form submissions" ON public.form_submissions
+CREATE POLICY "Admins can view form submissions" ON public.forms
 FOR SELECT TO authenticated
 USING (public.has_role(auth.uid(), 'admin'));
 
-CREATE POLICY "Admins can update form submissions" ON public.form_submissions
+CREATE POLICY "Admins can update form submissions" ON public.forms
 FOR UPDATE TO authenticated
 USING (public.has_role(auth.uid(), 'admin'));
 
-CREATE POLICY "Admins can delete form submissions" ON public.form_submissions
+CREATE POLICY "Admins can delete form submissions" ON public.forms
 FOR DELETE TO authenticated
 USING (public.has_role(auth.uid(), 'admin'));
 

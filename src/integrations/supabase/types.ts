@@ -14,7 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      form_submissions: {
+      forms: {
         Row: {
           email: string | null
           id: string

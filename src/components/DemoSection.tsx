@@ -62,7 +62,7 @@ const DemoSection = () => {
       }
 
       const { error } = await supabase
-        .from('form_submissions')
+        .from('forms')
         .insert({
           type: 'demo',
           name: fullName.trim(),

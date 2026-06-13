@@ -59,7 +59,7 @@ const ContactSection = () => {
       }
 
       const { error } = await supabase
-        .from('form_submissions')
+        .from('forms')
         .insert({
           type: 'contact',
           name: name.trim(),
